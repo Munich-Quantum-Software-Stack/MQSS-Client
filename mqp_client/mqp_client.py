@@ -3,6 +3,7 @@
 import json
 import time
 from dataclasses import dataclass
+
 from datetime import datetime
 from enum import Enum
 from typing import Dict, Optional
@@ -29,7 +30,9 @@ class Result:
     """Result Class to hold counts"""
 
     counts: Dict[str, int]
-    timestamp_completed: datetime
+    timestamp_submitted: datetime
+    timestamp_scheduled: datetime
+    timestamp_completed: Optional[datetime] = None
 
 
 class MQPClient(BaseClient):
@@ -140,12 +143,25 @@ class MQPClient(BaseClient):
             return None
         return Result(
             counts=json.loads(result_json["result"]),
-            timestamp_completed=datetime.strptime(
-                result_json.get(
-                    "timestamp_completed",
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
-                ),
-                "%Y-%m-%d %H:%M:%S.%f",
+            # timestamp_completed=datetime.strptime(
+            #     result_json.get(
+            #         "timestamp_completed",
+            #         datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+            #     ),
+            #     "%Y-%m-%d %H:%M:%S.%f",
+            # ),
+            timestamp_completed=(
+                datetime.strptime(
+                    result_json["timestamp_completed"], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                if result_json["timestamp_completed"] != ""
+                else None
+            ),
+            timestamp_submitted=datetime.strptime(
+                result_json["timestamp_submitted"], "%Y-%m-%d %H:%M:%S.%f"
+            ),
+            timestamp_scheduled=datetime.strptime(
+                result_json["timestamp_scheduled"], "%Y-%m-%d %H:%M:%S.%f"
             ),
         )
 
