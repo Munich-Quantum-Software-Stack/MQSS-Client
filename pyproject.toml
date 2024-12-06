@@ -1,7 +1,7 @@
 
 [project]
 name = "mqp-client"
-version = "0.1.3"
+version = "0.1.4"
 description = ""
 authors = [
     {name = "mqss", email = "mqss@munich-quantum-valley.de"},
@@ -37,3 +37,7 @@ includes = ["mqp_client"]
 profile = "black"
 src_paths = ["mqp_client", "test"]
 known_first_party = ["mqp_client"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = ["-v", "-s"]
