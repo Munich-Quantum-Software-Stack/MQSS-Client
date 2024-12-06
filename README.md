@@ -1,3 +1,5 @@
+## Installation
+
 ```bash
 pip install mqp-client
 ```
@@ -13,3 +15,7 @@ TOKEN = "<your-mqp-token>"
 # create a client instance
 client = MQPClient(token=TOKEN, url=URL)
 ```
+
+## Changelog
+
+See the [CHANGELOG](CHANGELOG.md) for details on changes in each version.
