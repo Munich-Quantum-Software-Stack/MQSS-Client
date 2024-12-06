@@ -30,9 +30,9 @@ class Result:
     """Result Class to hold counts"""
 
     counts: Dict[str, int]
-    timestamp_completed: datetime
     timestamp_submitted: datetime
     timestamp_scheduled: datetime
+    timestamp_completed: Optional[datetime] = None
 
 
 class MQPClient(BaseClient):
