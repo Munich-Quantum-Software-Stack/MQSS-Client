@@ -155,7 +155,7 @@ class MQPClient(BaseClient):
                     result_json["timestamp_completed"], "%Y-%m-%d %H:%M:%S.%f"
                 )
                 if result_json["timestamp_completed"] != ""
-                else ""
+                else None
             ),
             timestamp_submitted=datetime.strptime(
                 result_json["timestamp_submitted"], "%Y-%m-%d %H:%M:%S.%f"
