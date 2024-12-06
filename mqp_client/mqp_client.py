@@ -150,8 +150,12 @@ class MQPClient(BaseClient):
             #     ),
             #     "%Y-%m-%d %H:%M:%S.%f",
             # ),
-            timestamp_completed=datetime.strptime(
-                result_json["timestamp_completed"], "%Y-%m-%d %H:%M:%S.%f"
+            timestamp_completed=(
+                datetime.strptime(
+                    result_json["timestamp_completed"], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                if result_json["timestamp_completed"] != ""
+                else ""
             ),
             timestamp_submitted=datetime.strptime(
                 result_json["timestamp_submitted"], "%Y-%m-%d %H:%M:%S.%f"
