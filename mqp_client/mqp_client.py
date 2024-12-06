@@ -29,7 +29,9 @@ class Result:
     """Result Class to hold counts"""
 
     counts: Dict[str, int]
-    timestamp_completed: datetime
+    timestamp_completed: str
+    timestamp_submitted: str
+    timestamp_scheduled: str
 
 
 class MQPClient(BaseClient):
@@ -140,13 +142,16 @@ class MQPClient(BaseClient):
             return None
         return Result(
             counts=json.loads(result_json["result"]),
-            timestamp_completed=datetime.strptime(
-                result_json.get(
-                    "timestamp_completed",
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
-                ),
-                "%Y-%m-%d %H:%M:%S.%f",
-            ),
+            # timestamp_completed=datetime.strptime(
+            #     result_json.get(
+            #         "timestamp_completed",
+            #         datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+            #     ),
+            #     "%Y-%m-%d %H:%M:%S.%f",
+            # ),
+            timestamp_completed=result_json["timestamp_completed"],
+            timestamp_submitted=result_json["timestamp_submitted"],
+            timestamp_scheduled=result_json["timestamp_scheduled"],
         )
 
     def wait_for_result(
