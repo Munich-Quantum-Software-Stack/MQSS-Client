@@ -9,9 +9,11 @@ from typing import Any, Dict, List, Optional, Tuple
 class ResourceInfo:
     """Hold information about resource needed for transpilation"""
 
+    name: str
     qubits: int
-    connectivity: Optional[List[List[int]]]
-    instructions: Optional[List[Tuple[str, Optional[Dict[Any, Any]]]]]
+    online: bool = False
+    connectivity: Optional[List[List[int]]] = None
+    instructions: Optional[List[Tuple[str, Optional[Dict[Any, Any]]]]] = None
 
     def __eq__(self, other) -> bool:
         return isinstance(other, ResourceInfo) and self.qubits == other.qubits
@@ -19,8 +21,17 @@ class ResourceInfo:
     @classmethod
     def from_json_dict(cls, resource_json: dict):
         """Return ResourceInfo object from json string"""
+
+        if "name" not in resource_json:
+            raise ValueError("Resource name not found")
+        _name = resource_json["name"]
+
+        _online = False
         _connectivity = None
         _instructions = None
+
+        if "online" in resource_json:
+            _online = resource_json["online"]
         try:
             _connectivity = ast.literal_eval(resource_json["connectivity"])
         except (
@@ -45,7 +56,9 @@ class ResourceInfo:
             pass
 
         return cls(
+            name=_name,
             qubits=resource_json["qubits"],
+            online=_online,
             connectivity=_connectivity,
             instructions=_instructions,
         )
