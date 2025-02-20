@@ -88,6 +88,7 @@ class MQPClient(BaseClient):
         circuit_format: str,
         shots: int,
         no_modify: bool = False,
+        queued: bool = False,
     ) -> str:
         """Submit a circuit job to BQP API"""
         rsp_json = self._post(
@@ -98,6 +99,7 @@ class MQPClient(BaseClient):
                 "circuit_format": circuit_format,
                 "shots": shots,
                 "no_modify": no_modify,
+                "queued": queued,
             },
         )
         return rsp_json["uuid"]
