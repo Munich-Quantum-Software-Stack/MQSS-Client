@@ -1,8 +1,8 @@
 
 [project]
 name = "mqp-client"
-version = "0.1.4"
-description = ""
+version = "0.1.5"
+description = "A client for MQP"
 authors = [
     {name = "mqss", email = "mqss@munich-quantum-valley.de"},
 ]
