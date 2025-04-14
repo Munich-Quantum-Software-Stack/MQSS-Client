@@ -127,7 +127,9 @@ class ConnectionConfiguration:
 
 def create_rmq_connection(
     conn_config: ConnectionConfiguration, raise_exceptions: bool = False
-) -> BlockingConnection | None:
+) -> Optional[
+    BlockingConnection
+]:  # Updated return type to Optional[BlockingConnection]
     """Connect to RabbitMQ and return a blocking connection handle"""
 
     _rmq_connection = None

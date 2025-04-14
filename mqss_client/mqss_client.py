@@ -5,7 +5,7 @@ This module provides a client for the MQP API and HPC Offload Listener.
 import json
 import time
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from .hpc_client import HPCOffloadClient
 from .job import CircuitJobRequest, HamiltonianJobRequest, JobRequest, JobStatus, Result
@@ -19,7 +19,7 @@ class MQSSClient:
     def __init__(self, token: str, base_url: str, is_hpc: bool = False):
         self.token = token
         self.base_url = base_url
-        self.client: HPCOffloadClient | RESTClient
+        self.client: Union[HPCOffloadClient, RESTClient]
         if is_hpc:
             self.client = HPCOffloadClient(token)
         else:
