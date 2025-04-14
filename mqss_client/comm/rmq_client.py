@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from json import load
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from warnings import warn
 
 import pika.exceptions as pikaExceptions  # type: ignore
@@ -110,8 +110,8 @@ class ConnectionConfiguration:
 
         try:
             with open(file=config_file_path, encoding="utf-8") as json_config_file:
-                config_data: dict[str, Any] = load(json_config_file)
-                config_dict: dict[str, Any] = {}
+                config_data: Dict[str, Any] = load(json_config_file)
+                config_dict: Dict[str, Any] = {}
                 if conn_config_key != "" and conn_config_key in config_data:
                     config_dict = config_data[conn_config_key]
                 else:
