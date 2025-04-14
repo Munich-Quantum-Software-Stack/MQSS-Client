@@ -1,4 +1,4 @@
-"""Job module for MQP Client"""
+"""Job module for MQSS Client"""
 
 from abc import ABC
 from dataclasses import dataclass
@@ -21,8 +21,8 @@ class JobStatus(str, Enum):
 class JobRequest(ABC):  # pylint: disable=too-few-public-methods
     """Base class for job requests"""
 
-    def to_mqp_api_json_dict(self) -> dict:
-        """Convert JobRequest to JSON dictionary for MQP API"""
+    def to_json_dict(self) -> dict:
+        """Convert JobRequest to JSON dictionary"""
         raise NotImplementedError("Subclasses must implement this method")
 
 
@@ -37,8 +37,8 @@ class CircuitJobRequest(JobRequest):
     no_modify: bool
     queued: bool
 
-    def to_mqp_api_json_dict(self) -> dict:
-        """Convert CircuitJobRequest to JSON dictionary for MQP API"""
+    def to_json_dict(self) -> dict:
+        """Convert CircuitJobRequest to JSON dictionary"""
         return {
             "circuit": self.circuits,
             "circuit_format": self.circuit_format,
@@ -57,8 +57,8 @@ class HamiltonianJobRequest(JobRequest):
     interaction_str: str
     coefficients_str: str
 
-    def to_mqp_api_json_dict(self) -> dict:
-        """Convert HamiltonianJobRequest to JSON dictionary for MQP API"""
+    def to_json_dict(self) -> dict:
+        """Convert HamiltonianJobRequest to JSON dictionary"""
         return {
             "resource_name": self.resource_name,
             "interaction_str": self.interaction_str,

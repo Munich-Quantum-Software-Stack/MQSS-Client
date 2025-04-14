@@ -45,16 +45,16 @@ class MQSSClient:
         return ResourceInfo.from_json_dict(rsp_json)
 
     def submit_job(self, job_request: JobRequest) -> str:
-        """Submit a circuit job to MQP API"""
+        """Submit a circuit job"""
         if isinstance(job_request, CircuitJobRequest):
             rsp_json = self.client.post(
                 "job",
-                job_request.to_mqp_api_json_dict(),
+                job_request.to_json_dict(),
             )
         elif isinstance(job_request, HamiltonianJobRequest):
             rsp_json = self.client.post(
                 "hamiltonian_job",
-                job_request.to_mqp_api_json_dict(),
+                job_request.to_json_dict(),
             )
         else:
             raise ValueError("Invalid job request type")
