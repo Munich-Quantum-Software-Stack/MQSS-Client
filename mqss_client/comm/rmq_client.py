@@ -6,11 +6,8 @@ from typing import Any, Dict, Optional
 from warnings import warn
 
 import pika.exceptions as pikaExceptions  # type: ignore
-from pika import (  # type: ignore
-    BlockingConnection,
-    ConnectionParameters,
-    PlainCredentials,
-)
+from pika import ConnectionParameters  # type: ignore
+from pika import BlockingConnection, PlainCredentials
 from pika.exceptions import AMQPError  # type: ignore
 
 

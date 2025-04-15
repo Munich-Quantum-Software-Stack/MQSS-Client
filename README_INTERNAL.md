@@ -45,5 +45,5 @@ result = client.wait_for_job_result(job_id, job_request)
 
 ## Setting up development environment
 
-- The repository uses [`pdm`](https://pdm-project.org/en/latest/) for python package management.
+- The repository uses [`uv`](https://docs.astral.sh/uv/) for python package management.
 - Install pre-commit hooks using `pre-commit install`
