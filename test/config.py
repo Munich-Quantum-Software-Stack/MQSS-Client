@@ -1,6 +1,6 @@
 import os
 
-from mqp_client.resource_info import ResourceInfo
+from mqss_client.resource_info import ResourceInfo
 
 # TODO: change this line to the API endpoint you want to test
 URL = "https://portal.quantum.lrz.de:4000/"
@@ -27,7 +27,7 @@ CURRENT_RESOURCES = {
         name="QExa20", qubits=20, online=True, connectivity=None, instructions=None
     ),
     "AQT20": ResourceInfo(
-        name="AQT20", qubits=20, online=True, connectivity=None, instructions=None
+        name="AQT20", qubits=12, online=True, connectivity=None, instructions=None
     ),
     "WMI3": ResourceInfo(
         name="WMI3", qubits=3, online=True, connectivity=None, instructions=None
