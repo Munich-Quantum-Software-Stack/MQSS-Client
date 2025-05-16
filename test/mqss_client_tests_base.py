@@ -7,6 +7,7 @@ from mqss_client import (
     MQSSClient,
     ResourceInfo,
     Result,
+    PennylaneJobRequest,
 )
 
 from .config import CURRENT_RESOURCES, TOKEN, URL, get_qasm
@@ -43,6 +44,16 @@ def hamiltonian_job_request(resource_name):
         coefficients_str=coefficients_str,
     )
 
+@pytest.fixture
+def pennylane_job_request(resource_name):
+    """Fixture to create a pennylane job request"""
+    return PennylaneJobRequest(
+        resource_name=resource_name,
+        circuits=get_qasm(),
+        circuit_format="qasm",
+        shots=1000,
+        no_modify=False,
+    )
 
 class BaseMQSSClientTests:
     """Base class for MQSS client tests."""
@@ -104,6 +115,15 @@ class BaseMQSSClientTests:
         job_id = client.submit_job(hamiltonian_job_request)
         assert job_id is not None
         client.cancel_job(job_id, hamiltonian_job_request)
+
+    
+    def test_submit_pennylane_job(
+        self, client: MQSSClient, pennylane_job_request
+    ) -> None:
+        """Test submitting a Pennylane job."""
+        job_id = client.submit_job(pennylane_job_request)
+        assert job_id is not None
+        client.cancel_job(job_id, pennylane_job_request)
 
     def test_job_status(
         self, client: MQSSClient, circuit_job_request, monkeypatch

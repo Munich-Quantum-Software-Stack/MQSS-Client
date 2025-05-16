@@ -65,6 +65,24 @@ class HamiltonianJobRequest(JobRequest):
             "coefficients_str": self.coefficients_str,
         }
 
+@dataclass
+class PennylaneJobRequest(JobRequest):
+    """Class to hold Pennylane job information"""
+    resource_name: str
+    circuits: str
+    circuit_format: str
+    shots: int
+    no_modify: bool
+
+    def to_json_dict(self) -> dict:
+        """Convert PennylaneJobRequest to JSON dictionary"""
+        return {
+            "resource_name": self.resource_name,
+            "circuits": self.circuits,
+            "circuit_format": self.circuit_format,
+            "shots": self.shots,
+            "no_modify": self.no_modify,
+        }
 
 @dataclass
 class Result:
