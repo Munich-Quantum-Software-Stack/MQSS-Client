@@ -64,7 +64,7 @@ class TestMQSSClientLive(BaseMQSSClientTests):
         """Test submitting a Pennylane job."""
         pennylane_job_request.resource_name = online_resource_name(client)
         return super().test_submit_pennylane_job(client, pennylane_job_request)
-    
+
     def test_job_status(
         self, client: MQSSClient, circuit_job_request, monkeypatch
     ) -> None:

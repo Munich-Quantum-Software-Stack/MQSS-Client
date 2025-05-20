@@ -9,11 +9,16 @@ from .mqss_client_tests_base import (
     BaseMQSSClientTests,
     circuit_job_request,
     hamiltonian_job_request,
-    resource_name,
     pennylane_job_request,
+    resource_name,
 )
 
-__all__ = ["circuit_job_request", "hamiltonian_job_request", "resource_name", "pennylane_job_request"]
+__all__ = [
+    "circuit_job_request",
+    "hamiltonian_job_request",
+    "resource_name",
+    "pennylane_job_request",
+]
 
 
 @pytest.mark.mock

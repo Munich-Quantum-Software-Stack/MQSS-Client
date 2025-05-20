@@ -13,8 +13,8 @@ from .job import (
     HamiltonianJobRequest,
     JobRequest,
     JobStatus,
-    Result,
     PennylaneJobRequest,
+    Result,
 )
 from .resource_info import ResourceInfo
 from .rest_client import RESTClient

@@ -38,7 +38,7 @@ MOCK_JOB_DATA = {
         "timestamp_submitted": "2023-04-14 10:00:00.123456",
         "timestamp_scheduled": "2023-04-14 10:05:00.123456",
     },
-     "pennylane_job/mock-uuid-12345/result": {
+    "pennylane_job/mock-uuid-12345/result": {
         "result": '{"00": 500, "11": 500}',
         "timestamp_completed": "2023-04-14 10:15:30.123456",
         "timestamp_submitted": "2023-04-14 10:00:00.123456",
@@ -71,7 +71,9 @@ def create_rabbitmq_mock():
             method = message_data.get("method", "")
 
             # Handle POST requests for job creation
-            if (request_path in ["job", "hamiltonian_job","pennylane_job"]) and method == "POST":
+            if (
+                request_path in ["job", "hamiltonian_job", "pennylane_job"]
+            ) and method == "POST":
                 return json.dumps({"uuid": "mock-uuid-12345"})
 
             # Handle GET requests using the shared data
