@@ -78,7 +78,7 @@ class PennylaneJobRequest(JobRequest):
         """Convert PennylaneJobRequest to JSON dictionary"""
         return {
             "resource_name": self.resource_name,
-            "circuits": self.circuits,
+            "circuit": self.circuits,
             "circuit_format": self.circuit_format,
             "shots": self.shots,
             "no_modify": self.no_modify,
