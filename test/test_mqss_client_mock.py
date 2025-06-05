@@ -53,12 +53,12 @@ class TestMQSSClientMock(BaseMQSSClientTests):
     ) -> None:
         """Test job status."""
         job_id = client.submit_job(circuit_job_request)
-        
+
         # First mock to ensure initial status is PENDING
         def mock_initial_status(job_id, job_request):
             """Mock job status to return PENDING initially."""
             return JobStatus.PENDING
-            
+
         monkeypatch.setattr(client, "job_status", mock_initial_status)
         status = client.job_status(job_id, circuit_job_request)
         assert status in [JobStatus.PENDING, JobStatus.WAITING]
@@ -85,12 +85,13 @@ class TestMQSSClientMock(BaseMQSSClientTests):
         def mock_job_result(job_id, job_request):
             """Mock job_result to return the expected two-bit string counts."""
             from datetime import datetime
+
             now = datetime.now()
             return Result(
                 counts={"00": 500, "11": 500},
                 timestamp_submitted=now,
                 timestamp_scheduled=now,
-                timestamp_completed=now
+                timestamp_completed=now,
             )
 
         monkeypatch.setattr(client, "job_status", mock_job_status)
