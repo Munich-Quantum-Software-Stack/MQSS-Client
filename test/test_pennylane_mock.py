@@ -7,6 +7,7 @@ import pytest
 from mqss_client import JobStatus, MQSSClient, Result
 from mqss_client.job import CircuitJobRequest
 
+from .config import get_qasm
 from .mocks import MOCK_JOB_DATA, patch_mqss_rest_client, patch_rabbitmq_client
 
 # Add Pennylane mock data to existing mock data
@@ -15,7 +16,7 @@ MOCK_JOB_DATA.update(
         "job": {"jobs": ["mock-uuid-12345"]},
         "job/mock-uuid-12345/status": {"status": "COMPLETED"},
         "job/mock-uuid-12345/result": {
-            "result": '{"0": 500, "1": 500}',
+            "result": '{"00": 500, "11": 500}',
             "timestamp_completed": "2023-04-14 10:15:30.123456",
             "timestamp_submitted": "2023-04-14 10:00:00.123456",
             "timestamp_scheduled": "2023-04-14 10:05:00.123456",
@@ -26,11 +27,11 @@ MOCK_JOB_DATA.update(
 
 @pytest.fixture
 def pennylane_job_request():
-    """Create a mock Pennylane job request."""
+    """Create a mock Pennylane job request using QASM format."""
     return CircuitJobRequest(
         resource_name="mock-backend",
-        circuits="mock-mlir-circuit",
-        circuit_format="mlir",
+        circuits=get_qasm(),  # Using real QASM circuit definition, later we will use MLIR circuit definition
+        circuit_format="qasm",  # Using QASM format
         shots=1000,
         no_modify=True,
         queued=False,
@@ -89,7 +90,7 @@ class TestPennylaneJobMock:
         # Get result
         result = client.job_result(job_id, pennylane_job_request)
         assert isinstance(result, Result)
-        assert result.counts == {"0": 500, "1": 500}
+        assert result.counts == {"00": 500, "11": 500}
 
     def test_pennylane_job_cancellation(
         self, client: MQSSClient, pennylane_job_request
@@ -127,4 +128,4 @@ class TestPennylaneJobMock:
 
         # Verify result
         assert isinstance(result, Result)
-        assert result.counts == {"0": 500, "1": 500}
+        assert result.counts == {"00": 500, "11": 500}
