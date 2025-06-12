@@ -63,11 +63,11 @@ class TestMQSSClientMock(BaseMQSSClientTests):
         status = client.job_status(job_id, circuit_job_request)
         assert status in [JobStatus.PENDING, JobStatus.WAITING]
 
-        def mock_cancelled_status(job_id, job_request):
+        def mock_job_status(job_id, job_request):
             """Mock job status to return CANCELLED."""
             return JobStatus.CANCELLED
 
-        monkeypatch.setattr(client, "job_status", mock_cancelled_status)
+        monkeypatch.setattr(client, "job_status", mock_job_status)
         client.cancel_job(job_id, circuit_job_request)
         status = client.job_status(job_id, circuit_job_request)
         assert status == JobStatus.CANCELLED
@@ -82,20 +82,9 @@ class TestMQSSClientMock(BaseMQSSClientTests):
             """Mock job status to return a predefined status."""
             return JobStatus.COMPLETED
 
-        def mock_job_result(job_id, job_request):
-            """Mock job_result to return the expected two-bit string counts."""
-            from datetime import datetime
 
-            now = datetime.now()
-            return Result(
-                counts={"00": 500, "11": 500},
-                timestamp_submitted=now,
-                timestamp_scheduled=now,
-                timestamp_completed=now,
-            )
 
         monkeypatch.setattr(client, "job_status", mock_job_status)
-        monkeypatch.setattr(client, "job_result", mock_job_result)
         monkeypatch.setattr(time, "sleep", lambda x: None)
 
         result = client.wait_for_job_result(job_id, circuit_job_request)
