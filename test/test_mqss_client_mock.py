@@ -82,8 +82,6 @@ class TestMQSSClientMock(BaseMQSSClientTests):
             """Mock job status to return a predefined status."""
             return JobStatus.COMPLETED
 
-
-
         monkeypatch.setattr(client, "job_status", mock_job_status)
         monkeypatch.setattr(time, "sleep", lambda x: None)
 
