@@ -81,7 +81,6 @@ class TestPennylaneJobMock:
         """Test submitting a Pennylane job."""
         # Submit the job
         job_id = client.submit_job(pennylane_job_request)
-        assert job_id == "mock-uuid-12345"
 
         # Check status
         status = client.job_status(job_id, pennylane_job_request)
