@@ -30,7 +30,7 @@ def pennylane_job_request():
     """Create a mock Pennylane job request using QASM format."""
     return CircuitJobRequest(
         resource_name="mock-backend",
-        circuits=get_qasm(),  # Using real QASM circuit definition, later we will use MLIR circuit definition
+        circuits=get_qasm(),  # Using real QASM circuit definition
         circuit_format="qasm",  # Using QASM format
         shots=1000,
         no_modify=True,
@@ -120,8 +120,12 @@ class TestPennylaneJobMock:
         # Submit the job
         job_id = client.submit_job(pennylane_job_request)
 
-        # Mock sleep to speed up test
-        monkeypatch.setattr("time.sleep", lambda x: None)
+        # Mock job status to return COMPLETED
+        def mock_job_status(job_id, job_request):
+            """Mock job status to return COMPLETED."""
+            return JobStatus.COMPLETED
+
+        monkeypatch.setattr(client, "job_status", mock_job_status)
 
         # Wait for result
         result = client.wait_for_job_result(job_id, pennylane_job_request)
