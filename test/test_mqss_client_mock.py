@@ -54,17 +54,11 @@ class TestMQSSClientMock(BaseMQSSClientTests):
         """Test job status."""
         job_id = client.submit_job(circuit_job_request)
 
-        # First mock to ensure initial status is PENDING
-        def mock_initial_status(job_id, job_request):
-            """Mock job status to return PENDING initially."""
-            return JobStatus.PENDING
-
-        monkeypatch.setattr(client, "job_status", mock_initial_status)
         status = client.job_status(job_id, circuit_job_request)
         assert status in [JobStatus.PENDING, JobStatus.WAITING]
 
         def mock_job_status(job_id, job_request):
-            """Mock job status to return CANCELLED."""
+            """Mock job status to return a predefined status."""
             return JobStatus.CANCELLED
 
         monkeypatch.setattr(client, "job_status", mock_job_status)
