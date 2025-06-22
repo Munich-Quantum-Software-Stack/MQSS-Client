@@ -14,9 +14,9 @@ from .mocks import MOCK_JOB_DATA, patch_mqss_rest_client, patch_rabbitmq_client
 MOCK_JOB_DATA.update(
     {
         "job": {"jobs": ["mock-uuid-12345"]},
-        "job/mock-uuid-12345/status": {"status": "COMPLETED"},
+        "job/mock-uuid-12345/status": {"status": "PENDING"},  # Initially PENDING
         "job/mock-uuid-12345/result": {
-            "result": '{"00": 500, "11": 500}',
+            "result": '{"00": 500, "11": 500}',  # Using 2-bit string format
             "timestamp_completed": "2023-04-14 10:15:30.123456",
             "timestamp_submitted": "2023-04-14 10:00:00.123456",
             "timestamp_scheduled": "2023-04-14 10:05:00.123456",
@@ -83,9 +83,9 @@ class TestPennylaneJobMock:
         # Submit the job
         job_id = client.submit_job(pennylane_job_request)
 
-        # Check status
+        # Check initial status should be PENDING
         status = client.job_status(job_id, pennylane_job_request)
-        assert status == JobStatus.COMPLETED
+        assert status == JobStatus.PENDING
 
         # Get result
         result = client.job_result(job_id, pennylane_job_request)
