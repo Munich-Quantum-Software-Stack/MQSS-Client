@@ -43,6 +43,15 @@ result = client.job_result(job_id, job_request)
 result = client.wait_for_job_result(job_id, job_request)
 ```
 
+## Compute Node Config for HPCQC
+
+The following two environment variables can be set if needed
+
+- The queue name where the Quantum Offload Listener is accepting the requests can be set using
+  `MQSS_OFFLOAD_LISTENER_QUEUE_NAME`
+- Path to the file where RabbitMQ connection configuration can be set using
+  `MQSS_CLIENT_RMQ_CONN_CONFIG_FILE`
+
 ## Setting up development environment
 
 - The repository uses [`uv`](https://docs.astral.sh/uv/) for python package management.
