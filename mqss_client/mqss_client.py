@@ -3,6 +3,8 @@ This module provides a client for the MQP API and HPC Offload Listener.
 """
 
 import json
+import os
+import socket
 import time
 from datetime import datetime
 from typing import Dict, Optional, Union
@@ -21,7 +23,14 @@ class MQSSClient:
         self.base_url = base_url
         self.client: Union[HPCOffloadClient, RESTClient]
         if is_hpc:
-            self.client = HPCOffloadClient(token)
+            HOSTNAME = socket.gethostname().replace(" ", "_")
+            _offload_queue_name = os.environ.get(
+                "MQSS_OFFLOAD_LISTENER_QUEUE_NAME",
+                f"qoffload_api_request_reception_queue_{HOSTNAME}",
+            )
+            self.client = HPCOffloadClient(
+                token, offload_listener_queue_name=_offload_queue_name
+            )
         else:
             self.client = RESTClient(token, base_url)
 

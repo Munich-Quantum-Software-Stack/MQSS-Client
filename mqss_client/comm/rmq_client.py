@@ -39,7 +39,7 @@ class RabbitMQClient:
         if not self.channel:
             return False
         try:
-            self.channel.queue_declare(queue=destination, durable=True)
+            self.channel.queue_declare(queue=destination)
             self.channel.basic_publish(
                 exchange="", routing_key=destination, body=data, mandatory=True
             )
@@ -55,7 +55,7 @@ class RabbitMQClient:
             return None
 
         response = None
-        self.channel.queue_declare(queue=source, durable=True)
+        self.channel.queue_declare(queue=source)
         for method_frame, _, body in self.channel.consume(
             queue=source,
             inactivity_timeout=1,
@@ -76,7 +76,7 @@ class RabbitMQClient:
         """Declare a queue"""
         if not self.channel:
             return
-        self.channel.queue_declare(queue=queue_name, durable=True)
+        self.channel.queue_declare(queue=queue_name)
 
     def delete_queue(self, queue_name: str) -> None:
         """Delete a queue"""
