@@ -44,6 +44,10 @@ class RabbitMQClient:
         """Send data to RabbitMQ server"""
         if not self.channel:
             return False
+
+        if self.channel.is_closed:
+            self.channel = self.connection.channel()
+
         try:
             self.channel.queue_declare(queue=destination)
             self.channel.basic_publish(
@@ -59,6 +63,9 @@ class RabbitMQClient:
         """Receive data from RabbitMQ server"""
         if not self.channel:
             return None
+
+        if self.channel.is_closed:
+            self.channel = self.connection.channel()
 
         response = None
         self.channel.queue_declare(queue=source)
