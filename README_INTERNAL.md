@@ -13,7 +13,8 @@ URL = "<mqp-api-url>"
 TOKEN = "<your-mqp-token>"
 
 # create a client instance
-client = MQSSClient(token=TOKEN, url=URL)
+# set is_hpc=True if running on HPC Cluster
+client = MQSSClient(token=TOKEN, base_url=URL, is_hpc=False)
 
 # check out all the resources
 resources = client.get_all_resources()
