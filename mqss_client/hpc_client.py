@@ -32,7 +32,7 @@ class HPCOffloadClient(BaseClient):
     def __init__(
         self,
         token: str,
-        offload_listener_queue_name: str = f"qd_qrequest_reception_queue_{HOSTNAME}",
+        offload_listener_queue_name: str = f"qoffload_api_request_reception_queue_{HOSTNAME}",
     ) -> None:
         """Initialize the HPC Offload Client"""
         self.token = token

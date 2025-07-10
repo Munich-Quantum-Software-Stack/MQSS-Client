@@ -1,5 +1,6 @@
 """RabbitMQ Client for HPCQC"""
 
+import os
 from dataclasses import dataclass
 from json import load
 from typing import Any, Dict, Optional
@@ -18,11 +19,16 @@ class RabbitMQClient:
         self.token = token
         self.connection = None
         self.channel = None
-        self.conn_config = ConnectionConfiguration()
+        self.conn_config = (
+            ConnectionConfiguration()
+            if os.environ.get("MQSS_CLIENT_RMQ_CONN_CONFIG_FILE") is None
+            else ConnectionConfiguration.from_json_file(
+                os.environ["MQSS_CLIENT_RMQ_CONN_CONFIG_FILE"]
+            )
+        )
 
     def connect(self) -> None:
         """Connect to RabbitMQ server"""
-        print(f"Connecting to RabbitMQ server {self.conn_config} ...")
         self.connection = create_rmq_connection(self.conn_config)
         assert self.connection is not None
         self.channel = self.connection.channel()
@@ -38,8 +44,12 @@ class RabbitMQClient:
         """Send data to RabbitMQ server"""
         if not self.channel:
             return False
+
+        if self.channel.is_closed:
+            self.channel = self.connection.channel()
+
         try:
-            self.channel.queue_declare(queue=destination, durable=True)
+            self.channel.queue_declare(queue=destination)
             self.channel.basic_publish(
                 exchange="", routing_key=destination, body=data, mandatory=True
             )
@@ -54,8 +64,11 @@ class RabbitMQClient:
         if not self.channel:
             return None
 
+        if self.channel.is_closed:
+            self.channel = self.connection.channel()
+
         response = None
-        self.channel.queue_declare(queue=source, durable=True)
+        self.channel.queue_declare(queue=source)
         for method_frame, _, body in self.channel.consume(
             queue=source,
             inactivity_timeout=1,
@@ -63,11 +76,6 @@ class RabbitMQClient:
         ):
             if body is not None:
                 response = body.decode()
-                print(f"Received message: {body}")
-                print(f"Decoded message: {response}")
-                print(f"Decoded message type: {type(response)}")
-                print(f"Decoded message str: {str(response)}")
-
                 break
 
         return response
@@ -76,7 +84,7 @@ class RabbitMQClient:
         """Declare a queue"""
         if not self.channel:
             return
-        self.channel.queue_declare(queue=queue_name, durable=True)
+        self.channel.queue_declare(queue=queue_name)
 
     def delete_queue(self, queue_name: str) -> None:
         """Delete a queue"""
