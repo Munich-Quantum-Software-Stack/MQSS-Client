@@ -10,7 +10,14 @@ from datetime import datetime
 from typing import Dict, Optional, Union
 
 from .hpc_client import HPCOffloadClient
-from .job import CircuitJobRequest, HamiltonianJobRequest, JobRequest, JobStatus, Result
+from .job import (
+    CircuitJobRequest,
+    HamiltonianJobRequest,
+    JobRequest,
+    JobStatus,
+    PennylaneJobRequest,
+    Result,
+)
 from .resource_info import ResourceInfo
 from .rest_client import RESTClient
 
@@ -65,6 +72,11 @@ class MQSSClient:
                 "hamiltonian_job",
                 job_request.to_json_dict(),
             )
+        elif isinstance(job_request, PennylaneJobRequest):
+            rsp_json = self.client.post(
+                "pennylane_job",
+                job_request.to_json_dict(),
+            )
         else:
             raise ValueError("Invalid job request type")
 
@@ -82,6 +94,8 @@ class MQSSClient:
             self.client.delete(f"job/{uuid}")
         elif isinstance(job_type, HamiltonianJobRequest):
             self.client.delete(f"hamiltonian_job/{uuid}")
+        elif isinstance(job_type, PennylaneJobRequest):
+            self.client.delete(f"pennylane_job/{uuid}")
         else:
             raise ValueError("Invalid job request type")
 
@@ -91,6 +105,8 @@ class MQSSClient:
             rsp_json = self.client.get(f"job/{uuid}/status")
         elif isinstance(job_type, HamiltonianJobRequest):
             rsp_json = self.client.get(f"hamiltonian_job/{uuid}/status")
+        elif isinstance(job_type, PennylaneJobRequest):
+            rsp_json = self.client.get(f"pennylane_job/{uuid}/status")
         else:
             raise ValueError("Invalid job request type")
 
@@ -107,6 +123,8 @@ class MQSSClient:
             result_json = self.client.get(f"job/{uuid}/result")
         elif isinstance(job_type, HamiltonianJobRequest):
             result_json = self.client.get(f"hamiltonian_job/{uuid}/result")
+        elif isinstance(job_type, PennylaneJobRequest):
+            result_json = self.client.get(f"pennylane_job/{uuid}/result")
         else:
             raise ValueError("Invalid job request type")
 
