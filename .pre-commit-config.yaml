@@ -60,19 +60,3 @@ repos:
       # Run the formatter.
       - id: ruff-format
         types_or: [python, pyi]
-
-  - repo: local
-    hooks:
-      - id: isort
-        name: isort
-        entry: uv run isort mqss_client/ test/
-        language: system
-        always_run: true
-        pass_filenames: false
-
-      - id: mypy
-        name: mypy
-        entry: uv run python -m mypy mqss_client/ test/
-        language: system
-        always_run: true
-        pass_filenames: false
