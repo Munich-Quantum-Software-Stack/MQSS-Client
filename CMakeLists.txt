@@ -23,7 +23,7 @@ project(
   MQSS-Client
   VERSION 0.1
   DESCRIPTION "MQSS Client"
-  LANGUAGES C CXX)
+  LANGUAGES CXX)
 
 # Generate compile_commands.json to make it easier to work with clang based
 # tools
@@ -31,7 +31,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     ON
     CACHE BOOL "Export compile commands" FORCE)
 
-option(BUILD_BACKEND_TESTS "Build the backend tests" OFF)
+option(BUILD_BACKEND_TESTS "Build the backend tests" ON)
 option(BUILD_DOCUMENTATION "Build the documentations" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

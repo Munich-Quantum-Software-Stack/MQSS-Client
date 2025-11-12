@@ -15,10 +15,16 @@
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 # ------------------------------------------------------------------------------
 
-add_library(mqss_client SHARED interface.c)
+find_package(CURL REQUIRED)
+
+
+add_library(mqss_client SHARED clients.cpp)
 
 target_include_directories(
   mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+  target_link_libraries(mqss_client PUBLIC  curl
+                                        )
 
 
 
