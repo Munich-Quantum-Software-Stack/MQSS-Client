@@ -74,3 +74,4 @@ class Result:
     timestamp_submitted: datetime
     timestamp_scheduled: datetime
     timestamp_completed: Optional[datetime] = None
+    metrics: Optional[Dict[str, float]] = None

@@ -103,8 +103,10 @@ class MQSSClient:
 
     def job_result(self, uuid: str, job_type: JobRequest) -> Optional[Result]:
         """Get job result as JSON"""
+        metrics_json = None
         if isinstance(job_type, CircuitJobRequest):
             result_json = self.client.get(f"job/{uuid}/result")
+            metrics_json = self.client.get(f"job_metrics/{uuid}/stats")
         elif isinstance(job_type, HamiltonianJobRequest):
             result_json = self.client.get(f"hamiltonian_job/{uuid}/result")
         else:
@@ -128,6 +130,7 @@ class MQSSClient:
             timestamp_scheduled=datetime.strptime(
                 result_json["timestamp_scheduled"], "%Y-%m-%d %H:%M:%S.%f"
             ),
+            metrics=metrics_json,
         )
 
     def wait_for_job_result(self, uuid: str, job_type: JobRequest) -> Optional[Result]:
