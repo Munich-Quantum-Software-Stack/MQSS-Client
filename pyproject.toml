@@ -1,7 +1,7 @@
 
 [project]
 name = "mqss-client"
-version = "0.2.1"
+version = "0.2.2"
 description = "A client for MQP and HPCQC"
 authors = [
     {name = "mqss", email = "mqss@munich-quantum-valley.de"},
