@@ -106,7 +106,7 @@ class MQSSClient:
         metrics_json = None
         if isinstance(job_type, CircuitJobRequest):
             result_json = self.client.get(f"job/{uuid}/result")
-            metrics_json = self.client.get(f"job_metrics/{uuid}/stats")
+            metrics_json = self.client.get(f"job/{uuid}/stats")
         elif isinstance(job_type, HamiltonianJobRequest):
             result_json = self.client.get(f"hamiltonian_job/{uuid}/result")
         else:
