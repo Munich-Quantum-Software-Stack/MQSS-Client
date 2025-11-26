@@ -17,15 +17,17 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ------------------------------------------------------------------------------*/
 #pragma once
 #include <curl/curl.h>
-#include <iostream>
 #include <memory>
 #include <stdbool.h>
 #include <string>
+#include "jobs.h"
 
 class MQSS_Base_Client {
 public:
   virtual ~MQSS_Base_Client() = default;
   virtual std::string get(const std::string &path) = 0;
+  virtual std::string post(const std::string &path, const std::string &data) = 0;
+  //virtual std::string cancel(const std::string &path) = 0;
 };
 
 class MQSS_Client {
@@ -54,11 +56,11 @@ public:
 
   std::string getAllResources();
 
-  auto getResourceInfo(std::string resource);
+  std::string getResourceInfo(std::string resource);
 
-  auto submitJob(std::string jobRequest);
+  std::string submitJob(const Job_Request& jobRequest);
 
-  auto cancelJob(std::string jobRequest);
+  void cancelJob(Job_Request jobRequest);
 
   auto getJobStatus(std::string jobRequest);
 
