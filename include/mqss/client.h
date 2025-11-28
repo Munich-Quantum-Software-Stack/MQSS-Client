@@ -27,7 +27,7 @@ public:
   virtual ~MQSS_Base_Client() = default;
   virtual std::string get(const std::string &path) = 0;
   virtual std::string post(const std::string &path, const std::string &data) = 0;
-  //virtual std::string cancel(const std::string &path) = 0;
+  virtual void cancel(const std::string& path) = 0;
 };
 
 class MQSS_Client {
@@ -58,17 +58,17 @@ public:
 
   std::string getResourceInfo(std::string resource);
 
-  std::string submitJob(const Job_Request& jobRequest);
+  std::string submitJob(Job_Request& jobRequest);
 
-  void cancelJob(Job_Request jobRequest);
+  void cancelJob(Job_Request& jobRequest);
 
-  auto getJobStatus(std::string jobRequest);
+  std::string getJobStatus(Job_Request& jobRequest);
 
-  auto getJobResult(std::string jobRequest);
+  std::unique_ptr<Job_Result> getJobResult(Job_Request& jobRequest);
 
-  auto waitForJobResult(std::string jobRequest);
+  std::unique_ptr<Job_Result> waitForJobResult(Job_Request& jobRequest);
 
-  auto getNumberPendingJobs(std::string resource);
+  int getNumberPendingJobs(std::string resource);
 
 private:
   std::string token;

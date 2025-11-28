@@ -3,9 +3,13 @@
 using json = nlohmann::json;
 
 class Job_Request {
+  std::string uuid;
+
 public:
   virtual ~Job_Request() = default;
   virtual std::string to_json_str() const = 0;
+  std::string getUUID() { return uuid; }
+  void setUUID(std::string _uuid) { uuid = _uuid; }
 };
 
 class Circuit_Job_Request : public Job_Request {
@@ -58,18 +62,19 @@ public:
   }
 };
 
-class HamiltonianJobRequest : public Job_Request {
+class Hamiltonian_Job_Request : public Job_Request {
 private:
   std::string resource_name;
   std::string interaction_str;
   std::string coefficients_str;
 
 public:
-  HamiltonianJobRequest(std::string resource_name, std::string interaction_str,
-                        std::string coefficients_str)
+  Hamiltonian_Job_Request(std::string resource_name,
+                          std::string interaction_str,
+                          std::string coefficients_str)
       : resource_name(resource_name), interaction_str(interaction_str),
         coefficients_str(coefficients_str) {}
-  HamiltonianJobRequest() {};
+  Hamiltonian_Job_Request() {};
 
   void setResourceName(std::string _resource_name) {
     resource_name = _resource_name;
@@ -92,4 +97,20 @@ public:
 
     return job_json.dump();
   }
+};
+
+class Job_Result {
+
+public:
+  std::map<std::string, unsigned int> results;
+  std::string timestamp_completed;
+  std::string timestamp_submitted;
+  std::string timestamp_scheduled;
+
+  Job_Result(std::map<std::string, unsigned int> results,
+             std::string timestamp_completed, std::string timestamp_submitted,
+             std::string timestamp_scheduled)
+      : results(results), timestamp_completed(timestamp_completed),
+        timestamp_submitted(timestamp_submitted),
+        timestamp_scheduled(timestamp_scheduled) {}
 };

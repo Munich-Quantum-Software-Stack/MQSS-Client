@@ -1,8 +1,9 @@
 #include "mqss/client.h"
 #include <cstring>
 #include <curl/curl.h>
-#include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
+using json = nlohmann::json;
 
 #define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
 
@@ -68,8 +69,7 @@ public:
   }
 
   std::string post(const std::string &path, const std::string &data) override {
-    
-     CURL *curl = curl_easy_init();
+    CURL *curl = curl_easy_init();
     if (!curl)
       return "";
 
@@ -82,13 +82,32 @@ public:
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
     CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK)
+    curl_easy_cleanup(curl);
+    if (res != CURLE_OK || response.response == NULL) {
       return "";
+    }
 
     std::string result(response.response, response.size);
-
-    free(response.response);
-
     return result;
+  }
+
+  void cancel(const std::string &path) override {
+
+    CURL *curl = curl_easy_init();
+    if (!curl)
+      return;
+    long response_code;
+    MQSS_Rest_Response response = {0};
+
+    curl_easy_setopt(curl, CURLOPT_URL, (url + path).c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK)
+      return;
   }
 };
