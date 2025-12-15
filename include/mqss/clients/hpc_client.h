@@ -1,4 +1,8 @@
 #include "mqss/client.h"
+#include "rabbitmq_client.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <curl/curl.h>
 #include <iostream>
 #include <string>
@@ -21,29 +25,48 @@ std::string _getHostName() {
 }
 
 class MQSS_HPC_Client : public MQSS_Base_Client {
-  std::string queue_name;
-  std::string token;
+  std::string offload_listerner_queue_name;
+  std::string response_queue_name;
+
+  MQSS_RabbitMQ_Client rabbitmq_client;
 
 public:
-  // Constructor with default queue_name based on hostname
-  MQSS_HPC_Client(std::string token, std::string queue_name = "")
-      : token(token),
-        queue_name(queue_name.empty() ? _getHostName() : queue_name),
-        MQSS_Base_Client() {}
+  MQSS_HPC_Client(std::string offload_listerner_queue_name = "",
+                  std::string response_queue_name = "")
+      : offload_listerner_queue_name(
+            offload_listerner_queue_name.empty()
+                ? "qoffload_api_request_reception_queue_" + _getHostName()
+                : offload_listerner_queue_name),
+        response_queue_name(response_queue_name.empty()
+                                ? "response_queue_" + _getHostName() + "_" +
+                                      boost::uuids::to_string(
+                                          boost::uuids::random_generator()())
+                                          .substr(0, 8)
+                                : response_queue_name),
+        rabbitmq_client(), MQSS_Base_Client() {
+    rabbitmq_client.connect();
+    rabbitmq_client.declare_queue(offload_listerner_queue_name);
+    rabbitmq_client.declare_queue(response_queue_name);
+  }
 
-  MQSS_HPC_Client() : MQSS_Base_Client() {}
+  //MQSS_HPC_Client() : MQSS_Base_Client() {}
 
   std::string get(const std::string &path) override {
-    // Implement the actual get logic
-    return "";
+    std::string request, response;
+    rabbitmq_client.send(offload_listerner_queue_name, request);
+    response = rabbitmq_client.receive(response_queue_name);
+    return response;
   }
 
   std::string post(const std::string &path, const std::string &data) override {
-    // Implement the actual post logic
-    return "";
+    rabbitmq_client.send(offload_listerner_queue_name, data);
+    std::string response = rabbitmq_client.receive(response_queue_name);
+    return response;
   }
 
   void cancel(const std::string &path) override {
-    // Implement the cancel logic
+    std::string request, response;
+    rabbitmq_client.send(offload_listerner_queue_name, request);
+    response = rabbitmq_client.receive(response_queue_name);
   }
 };

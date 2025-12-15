@@ -17,13 +17,14 @@
 
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(rabbitmq-c REQUIRED)
 
 add_library(mqss_client SHARED clients.cpp)
 
 target_include_directories(
   mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-  target_link_libraries(mqss_client PUBLIC  curl nlohmann_json
+  target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq
                                         )
 
 
