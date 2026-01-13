@@ -26,6 +26,3 @@ target_include_directories(
 
   target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq
                                         )
-
-
-

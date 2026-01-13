@@ -22,4 +22,3 @@ int MQSS_client_disconnect(MQSS_Client client){
 int MQSS_client_submit_request(MQSS_Client client, MQSS_Client_Request request){
     // TODO
 }
-

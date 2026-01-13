@@ -1,5 +1,6 @@
-#include <nlohmann/json.hpp>
 #include <string>
+
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 class Job_Request {
@@ -8,6 +9,7 @@ class Job_Request {
 public:
   virtual ~Job_Request() = default;
   virtual std::string to_json_str() const = 0;
+  virtual std::string getPath() const = 0;
   std::string getUUID() { return uuid; }
   void setUUID(std::string _uuid) { uuid = _uuid; }
 };
@@ -60,6 +62,8 @@ public:
 
     return job_json.dump();
   }
+
+  std::string getPath() { return "job/"; }
 };
 
 class Hamiltonian_Job_Request : public Job_Request {
@@ -97,6 +101,8 @@ public:
 
     return job_json.dump();
   }
+
+  std::string getPath() { return "hamiltonian_job/"; }
 };
 
 class Job_Result {
@@ -113,4 +119,25 @@ public:
       : results(results), timestamp_completed(timestamp_completed),
         timestamp_submitted(timestamp_submitted),
         timestamp_scheduled(timestamp_scheduled) {}
+
+static Job_Result from_json(json& parsed) {
+    const json& _parsed_job_result = parsed;
+
+    std::string _circuit_result = _parsed_job_result.at("result");
+
+    std::map<std::string, unsigned int> _circuit_result_dict;
+
+    json _result_map = json::parse(_circuit_result);
+    for (auto& [key, value] : _result_map.items()) {
+        _circuit_result_dict[key] = value.get<unsigned int>();
+    }
+
+    return Job_Result(
+        _circuit_result_dict,
+        _parsed_job_result.at("timestamp_completed").get<std::string>(),
+        _parsed_job_result.at("timestamp_submitted").get<std::string>(),
+        _parsed_job_result.at("timestamp_scheduled").get<std::string>()
+    );
+}
+
 };

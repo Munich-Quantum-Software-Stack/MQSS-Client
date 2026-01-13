@@ -1,9 +1,8 @@
 
-#include <algorithm>
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
-#include <bits/types/struct_timeval.h>
-#include <cstddef>
+
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -20,31 +19,34 @@ class MQSS_RabbitMQ_Client {
 public:
   MQSS_RabbitMQ_Client(std::string user = "guest",
                        std::string password = "guest",
-                       std::string hostname = "localhost", int port = 5672)
+                       std::string hostname = "host.docker.internal",
+                       int port = 5672)
       : user(user), password(password), hostname(hostname), port(port) {};
 
   int connect() {
     connection = amqp_new_connection();
     socket = amqp_tcp_socket_new(connection);
-    if (socket == NULL)
-      return -1;
-    int status = amqp_socket_open(socket, hostname.c_str(), port);
-    if (status)
+    if (!socket)
       return -1;
 
+    if (amqp_socket_open(socket, hostname.c_str(), port))
+      return -2;
+
     amqp_rpc_reply_t reply =
-        amqp_login(connection, "/", 0, AMQP_DEFAULT_FRAME_SIZE, 0,
+        amqp_login(connection, "/", 0, AMQP_DEFAULT_FRAME_SIZE, 60,
                    AMQP_SASL_METHOD_PLAIN, user.c_str(), password.c_str());
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-      return -1;
-    }
-    amqp_channel_open_ok_t *opened = amqp_channel_open(connection, 1);
-    if (opened == NULL) {
-      return -1;
-    }
+
+    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
+      return -3;
+
+    amqp_channel_open(connection, 1);
+    reply = amqp_get_rpc_reply(connection);
+    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
+      return -4;
 
     return 0;
   }
+
   void disconnect() { free(connection); }
 
   int send(std::string queue, std::string data) {
@@ -56,26 +58,27 @@ public:
                               amqp_cstring_bytes(queue.c_str()), 0, 0, &props,
                               amqp_cstring_bytes(data.c_str()));
   }
-  std::string receive(std::string queue) {
+  std::string receive(const std::string &queue) {
+    declare_queue(queue);
 
     amqp_basic_consume(connection, 1, amqp_cstring_bytes(queue.c_str()),
-                       amqp_empty_bytes, 0, 1, 0, amqp_empty_table);
-    amqp_rpc_reply_t rpc_reply = amqp_get_rpc_reply(connection);
+                       amqp_empty_bytes, 0, 0, 0, amqp_empty_table);
 
-    if (rpc_reply.reply_type != AMQP_RESPONSE_NORMAL) {
-      fprintf(stderr, "Failed to start consuming messages.\n");
+    amqp_envelope_t envelope;
+    amqp_rpc_reply_t reply =
+        amqp_consume_message(connection, &envelope, NULL, 0);
+
+    if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
+      return amqp_error_string2(reply.library_error);
     }
 
-    amqp_rpc_reply_t res;
-    amqp_envelope_t envelope;
+    std::string body(static_cast<char *>(envelope.message.body.bytes),
+                     envelope.message.body.len);
 
-    amqp_maybe_release_buffers(connection);
+    amqp_basic_ack(connection, 1, envelope.delivery_tag, false);
+    amqp_destroy_envelope(&envelope);
 
-    res = amqp_consume_message(connection, &envelope, NULL, 0);
-    
-    void* response = envelope.message.body.bytes;
-
-    return std::string((char*)response);
+    return body;
   }
 
   int declare_queue(std::string queue_name) {

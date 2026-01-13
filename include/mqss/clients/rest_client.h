@@ -1,9 +1,5 @@
-#include "mqss/client.h"
-#include <cstring>
+#include "base_client.h"
 #include <curl/curl.h>
-#include <nlohmann/json.hpp>
-#include <string>
-using json = nlohmann::json;
 
 #define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
 
