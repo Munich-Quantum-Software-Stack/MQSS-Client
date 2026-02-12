@@ -20,7 +20,7 @@ public:
     std::optional<Device> getResourceInfo(const std::string& resource);
 
     // Jobs
-    std::string submitJob(Job_Request& job);
+    std::optional<std::string> submitJob(Job_Request& job);
     void cancelJob(Job_Request& job);
     std::string getJobStatus(Job_Request& job);
     std::unique_ptr<Job_Result> getJobResult(Job_Request& job);

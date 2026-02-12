@@ -9,6 +9,6 @@ public:
   virtual ~MQSS_Base_Client() = default;
   virtual std::string get(const std::string &path) = 0;
   virtual std::string post(const std::string &path,
-                           const std::string &data) = 0;
+                           const json &data) = 0;
   virtual void cancel(const std::string &path) = 0;
 };

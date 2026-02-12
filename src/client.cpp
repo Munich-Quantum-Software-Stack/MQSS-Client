@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 
-
 MQSS_Client::MQSS_Client() { client_ = std::make_unique<MQSS_HPC_Client>(); }
 
 MQSS_Client::MQSS_Client(const std::string &token_or_queue, bool is_hpc) {
@@ -20,7 +19,6 @@ MQSS_Client::MQSS_Client(const std::string &token, const std::string &url) {
 std::vector<Device> MQSS_Client::getAllResources() {
   std::vector<Device> devices;
   std::string resp = client_->get("resources");
-  std::cout << resp << "\n";
   json parsed = json::parse(resp);
   for (auto &item : parsed) {
     devices.push_back(Device::from_json(item));
@@ -38,12 +36,12 @@ MQSS_Client::getResourceInfo(const std::string &resource) {
     return std::nullopt;
   return Device::from_json(parsed);
 }
-
-std::string MQSS_Client::submitJob(Job_Request &job) {
+std::optional<std::string> MQSS_Client::submitJob(Job_Request &job) {
   std::string path = job.getPath();
-  std::string result = client_->post(path, job.to_json_str());
-  if (result.empty())
-    return "";
+  std::string result = client_->post(path, job.to_json());
+  bool isValid = json::accept(result);
+  if (result.empty() || !isValid)
+    return std::nullopt;
 
   json parsed = json::parse(result);
   std::string uuid = parsed["uuid"];
@@ -78,13 +76,13 @@ std::unique_ptr<Job_Result> MQSS_Client::getJobResult(Job_Request &job) {
 
 std::unique_ptr<Job_Result> MQSS_Client::waitForJobResult(Job_Request &job,
                                                           size_t poll_seconds) {
+
   while (true) {
     std::string status = getJobStatus(job);
     if (status == "COMPLETED")
       break;
-    if (status == "FAILED" || status.empty())
+    if (status == "FAILED" || status == "CANCELLED" || status.empty())
       return nullptr;
-
     std::this_thread::sleep_for(std::chrono::seconds(poll_seconds));
   }
   return getJobResult(job);

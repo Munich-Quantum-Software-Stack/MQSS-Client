@@ -23,6 +23,8 @@ public:
                        int port = 5672)
       : user(user), password(password), hostname(hostname), port(port) {};
 
+  ~MQSS_RabbitMQ_Client() { disconnect(); }
+
   int connect() {
     connection = amqp_new_connection();
     socket = amqp_tcp_socket_new(connection);
@@ -47,7 +49,11 @@ public:
     return 0;
   }
 
-  void disconnect() { free(connection); }
+  void disconnect() {
+    amqp_channel_close(connection, 1, AMQP_REPLY_SUCCESS);
+    amqp_connection_close(connection, AMQP_REPLY_SUCCESS);
+    amqp_destroy_connection(connection);
+  }
 
   int send(std::string queue, std::string data) {
     amqp_basic_properties_t props;

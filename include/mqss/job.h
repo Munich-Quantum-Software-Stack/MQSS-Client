@@ -8,7 +8,7 @@ class Job_Request {
 
 public:
   virtual ~Job_Request() = default;
-  virtual std::string to_json_str() const = 0;
+  virtual json to_json() const = 0;
   virtual std::string getPath() const = 0;
   std::string getUUID() { return uuid; }
   void setUUID(std::string _uuid) { uuid = _uuid; }
@@ -50,7 +50,7 @@ public:
   void setQueued(bool _queued) { queued = _queued; }
   bool isQueued() { return queued; }
 
-  std::string to_json_str() const {
+  json to_json() const {
     json job_json = {
         {"circuit", circuit},
         {"circuit_format", circuit_format},
@@ -60,10 +60,10 @@ public:
         {"queued", queued},
     };
 
-    return job_json.dump();
+    return job_json;
   }
 
-  std::string getPath() { return "job/"; }
+  std::string getPath() const { return "job"; }
 };
 
 class Hamiltonian_Job_Request : public Job_Request {
@@ -94,15 +94,15 @@ public:
     coefficients_str = _coefficients_str;
   }
   std::string getCoefficientsString() { return coefficients_str; }
-  std::string to_json_str() const {
+  json to_json() const {
     json job_json = {{"resource_name", resource_name},
                      {"interaction_str", interaction_str},
                      {"coefficients_str", coefficients_str}};
 
-    return job_json.dump();
+    return job_json;
   }
 
-  std::string getPath() { return "hamiltonian_job/"; }
+  std::string getPath() const { return "hamiltonian_job"; }
 };
 
 class Job_Result {
@@ -120,24 +120,22 @@ public:
         timestamp_submitted(timestamp_submitted),
         timestamp_scheduled(timestamp_scheduled) {}
 
-static Job_Result from_json(json& parsed) {
-    const json& _parsed_job_result = parsed;
+  static Job_Result from_json(json &parsed) {
+    const json &_parsed_job_result = parsed;
 
     std::string _circuit_result = _parsed_job_result.at("result");
 
     std::map<std::string, unsigned int> _circuit_result_dict;
 
     json _result_map = json::parse(_circuit_result);
-    for (auto& [key, value] : _result_map.items()) {
-        _circuit_result_dict[key] = value.get<unsigned int>();
+    for (auto &[key, value] : _result_map.items()) {
+      _circuit_result_dict[key] = value.get<unsigned int>();
     }
 
     return Job_Result(
         _circuit_result_dict,
         _parsed_job_result.at("timestamp_completed").get<std::string>(),
         _parsed_job_result.at("timestamp_submitted").get<std::string>(),
-        _parsed_job_result.at("timestamp_scheduled").get<std::string>()
-    );
-}
-
+        _parsed_job_result.at("timestamp_scheduled").get<std::string>());
+  }
 };

@@ -31,8 +31,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     ON
     CACHE BOOL "Export compile commands" FORCE)
 
-option(BUILD_BACKEND_TESTS "Build the backend tests" ON)
-option(BUILD_DOCUMENTATION "Build the documentations" OFF)
+option(BUILD_UNIT_TESTS "Build the unit tests" ON)
+option(ENABLE_COVERAGE "Enabling coverage" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -52,10 +52,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(src)
 
-if(BUILD_BACKEND_TESTS)
+if(BUILD_UNIT_TESTS)
   add_subdirectory(tests)
-endif()
-
-if(BUILD_DOCUMENTATION)
-  add_subdirectory(docs)
 endif()

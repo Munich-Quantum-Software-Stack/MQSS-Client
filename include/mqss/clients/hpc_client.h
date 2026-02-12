@@ -3,9 +3,9 @@
 #include "base_client.h"
 #include "rabbitmq_client.h"
 
-#include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-
+#include <boost/uuid/uuid_io.hpp>
+#include <iostream>
 
 inline std::string _getHostName() {
   size_t max_hostname_size = sysconf(_SC_HOST_NAME_MAX);
@@ -49,10 +49,10 @@ public:
     rabbitmq_client.declare_queue(response_queue_name);
   }
 
-  //MQSS_HPC_Client() : MQSS_Base_Client() {}
+  // MQSS_HPC_Client() : MQSS_Base_Client() {}
 
   std::string get(const std::string &path) override {
-    std::string request, response;;
+    std::string request, response;
     json request_json = {
         {"authorization", ""},
         {"method", "GET"},
@@ -60,13 +60,23 @@ public:
         {"data", ""},
         {"response_queue", response_queue_name},
     };
-    int err = rabbitmq_client.send(offload_listener_queue_name, request_json.dump());
+    int err =
+        rabbitmq_client.send(offload_listener_queue_name, request_json.dump());
     response = rabbitmq_client.receive(response_queue_name);
     return response;
   }
 
-  std::string post(const std::string &path, const std::string &data) override {
-    rabbitmq_client.send(offload_listener_queue_name, data);
+  std::string post(const std::string &path, const json &data) override {
+    json request_json = {
+        {"authorization", ""},
+        {"method", "POST"},
+        {"request", path},
+        {"data", data},
+        {"response_queue", response_queue_name},
+    };
+
+    rabbitmq_client.send(offload_listener_queue_name, request_json.dump());
+
     std::string response = rabbitmq_client.receive(response_queue_name);
     return response;
   }

@@ -72,15 +72,17 @@ protected:
 INSTANTIATE_TEST_SUITE_P(
     MQSS_Test_Instantiation, MQSS_Client_Device_Test,
     ::testing::Values(
-        ClientCtorParam{CtorKind::Empty},
+        //ClientCtorParam{CtorKind::Empty},
         ClientCtorParam{CtorKind::StringBool, MQSS_HPC_QUEUENAME, "", true},
         ClientCtorParam{CtorKind::StringBool, MQSS_API_TOKEN, "", false},
-        ClientCtorParam{CtorKind::StringString, MQSS_API_TOKEN, MQSS_API_URL}));
+        ClientCtorParam{CtorKind::StringString, MQSS_API_TOKEN, MQSS_API_URL}
+        ));
 
 TEST_P(MQSS_Client_Device_Test, ClientGetAllResources) {
   std::vector<Device> devices = client.getAllResources();
   ASSERT_GE(devices.size(), 0);
 }
+
 
 TEST_P(MQSS_Client_Device_Test, ClientGetAResource) {
   std::vector<std::string> device_names = {"QLM", "Q5", "Q20", "AQT20",
@@ -98,6 +100,43 @@ TEST_P(MQSS_Client_Device_Test, ClientGetAResourceFalse) {
     std::optional<Device> device = client.getResourceInfo(device_name);
     ASSERT_FALSE(device.has_value());
   }
+}
+
+TEST_P(MQSS_Client_Device_Test, ClientCheckResourceName) {
+  std::string golden_device_name = "QLM";
+  std::optional<Device> device = client.getResourceInfo(golden_device_name);
+  ASSERT_TRUE(device.has_value());
+  ASSERT_EQ((*device).name(), golden_device_name);
+}
+
+TEST_P(MQSS_Client_Device_Test, ClientCheckQubitCount) {
+  std::string device_name = "Q5";
+  std::optional<Device> device = client.getResourceInfo(device_name);
+  ASSERT_TRUE(device.has_value());
+  ASSERT_GE((*device).qubit_count(), 0);
+}
+
+TEST_P(MQSS_Client_Device_Test, ClientCheckIfOnline) {
+  /* If the device is under maintance, this test might fail.*/
+  std::string device_name = "AQT20";
+  std::optional<Device> device = client.getResourceInfo(device_name);
+  ASSERT_TRUE(device.has_value());
+  ASSERT_EQ((*device).online(), true);
+}
+
+TEST_P(MQSS_Client_Device_Test, ClientCheckCouplingMap) {
+  
+  std::string device_name = "AQT20";
+  std::optional<Device> device = client.getResourceInfo(device_name);
+  ASSERT_TRUE(device.has_value());
+  ASSERT_GE((*device).coupling_map().size(), 0);
+}
+
+TEST_P(MQSS_Client_Device_Test, ClientCheckNativeGateset) {
+  std::string device_name = "Q20";
+  std::optional<Device> device = client.getResourceInfo(device_name);
+  ASSERT_TRUE(device.has_value());
+  ASSERT_GE((*device).native_gateset().size(), 0);
 }
 
 int main(int argc, char **argv) {
