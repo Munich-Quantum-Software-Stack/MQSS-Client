@@ -117,7 +117,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckQubitCount) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckIfOnline) {
-  /* If the device is under maintance, this test might fail.*/
+  /* If the device is under maintenance, this test might fail.*/
   std::string device_name = "AQT20";
   std::optional<Device> device = client.getResourceInfo(device_name);
   ASSERT_TRUE(device.has_value());
@@ -125,7 +125,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckIfOnline) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckCouplingMap) {
-  
+
   std::string device_name = "AQT20";
   std::optional<Device> device = client.getResourceInfo(device_name);
   ASSERT_TRUE(device.has_value());
