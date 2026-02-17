@@ -1,11 +1,13 @@
 
 
-#include "base_client.h"
+#include "mqss/client.h"
 #include "rabbitmq_client.h"
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
+
+using namespace mqss::client;
 
 inline std::string _getHostName() {
   size_t max_hostname_size = sysconf(_SC_HOST_NAME_MAX);

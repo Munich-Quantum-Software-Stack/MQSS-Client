@@ -24,5 +24,13 @@ add_library(mqss_client SHARED client.cpp)
 target_include_directories(
   mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-  target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq
-                                        )
+target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq
+                                      )
+include(GNUInstallDirs)
+
+install(TARGETS mqss_client
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

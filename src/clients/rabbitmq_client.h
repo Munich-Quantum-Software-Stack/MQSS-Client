@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+
 class MQSS_RabbitMQ_Client {
   amqp_connection_state_t connection;
   amqp_socket_t *socket;

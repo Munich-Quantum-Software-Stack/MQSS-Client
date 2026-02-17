@@ -18,15 +18,12 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #include "mqss/client.h"
 #include "gtest/gtest.h"
-#include <cstddef>
 #include <cstdlib>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
-#include <tuple>
-#include <vector>
 
 #define MQSS_HPC_QUEUENAME std::getenv("MQSS_HPC_QUEUENAME")
 #define MQSS_API_TOKEN std::getenv("MQSS_API_TOKEN")
@@ -53,20 +50,20 @@ protected:
 
     switch (p.kind) {
     case CtorKind::Empty:
-      client = MQSS_Client{};
+      client = mqss::client::MQSSClient{};
       break;
 
     case CtorKind::StringBool:
-      client = MQSS_Client{p.token_or_queue, p.is_hpc};
+      client = mqss::client::MQSSClient{p.token_or_queue, p.is_hpc};
       break;
 
     case CtorKind::StringString:
-      client = MQSS_Client{p.token_or_queue, p.url};
+      client = mqss::client::MQSSClient{p.token_or_queue, p.url};
       break;
     }
   }
 
-  MQSS_Client client;
+  mqss::client::MQSSClient client;
 };
 
 INSTANTIATE_TEST_SUITE_P(
@@ -87,8 +84,8 @@ cx q[0], q[1];
 measure q -> c;)";
 
 TEST_P(MQSS_Client_Device_Test, ClientSubmitJob) {
-  Circuit_Job_Request job =
-      Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::Circuit_Job_Request job =
+      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
 }
@@ -96,11 +93,10 @@ TEST_P(MQSS_Client_Device_Test, ClientSubmitJob) {
 TEST_P(MQSS_Client_Device_Test, ClientCancelJob) {
   if (GetParam().is_hpc)
     GTEST_SKIP();
-  Circuit_Job_Request job =
-      Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::Circuit_Job_Request job =
+      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
-  std::cout << *uuid_or_null << "\n";
   client.cancelJob(job);
   ASSERT_STREQ(client.getJobStatus(job).c_str(), "CANCELLED");
 }
@@ -108,15 +104,15 @@ TEST_P(MQSS_Client_Device_Test, ClientCancelJob) {
 TEST_P(MQSS_Client_Device_Test, ClientSubmitHamiltonianJob) {
   if (GetParam().is_hpc)
     GTEST_SKIP();
-  Hamiltonian_Job_Request job =
-      Hamiltonian_Job_Request("QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
+  mqss::client::Hamiltonian_Job_Request job =
+      mqss::client::Hamiltonian_Job_Request("QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckJobStatus) {
-  Circuit_Job_Request job =
-      Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::Circuit_Job_Request job =
+      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
   std::string status = client.getJobStatus(job);
@@ -124,7 +120,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobStatus) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
-  Circuit_Job_Request job = Circuit_Job_Request();
+  mqss::client::Circuit_Job_Request job = mqss::client::Circuit_Job_Request();
   std::string CircuitFormat("qasm");
   std::string ResourceName("AQT20");
   unsigned int shots = 10;
@@ -151,7 +147,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckHamiltonianJobSetterAndGetter) {
-  Hamiltonian_Job_Request job = Hamiltonian_Job_Request();
+  mqss::client::Hamiltonian_Job_Request job = mqss::client::Hamiltonian_Job_Request();
   std::string CoefficientsString("0.5 0.1 0.8 1;");
   std::string Interaction_str("0 1; 1 2; 0 2; 0 3;");
 
@@ -165,8 +161,8 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckHamiltonianJobSetterAndGetter) {
 TEST_P(MQSS_Client_Device_Test, ClientWaitForResult) {
   if (GetParam().is_hpc)
     GTEST_SKIP();
-  Circuit_Job_Request job =
-      Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::Circuit_Job_Request job =
+      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
   auto result = client.waitForJobResult(job);
@@ -175,8 +171,8 @@ TEST_P(MQSS_Client_Device_Test, ClientWaitForResult) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientGetNumPendingJobs) {
-  Circuit_Job_Request job =
-      Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::Circuit_Job_Request job =
+      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
   int n_job = client.getNumberPendingJobs("QLM");

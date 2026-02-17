@@ -1,6 +1,8 @@
-#include "base_client.h"
+#include "mqss/client.h"
 #include <curl/curl.h>
 #include <iostream>
+
+using namespace mqss::client;
 
 #define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
 
