@@ -35,9 +35,9 @@ enum class CtorKind {
 
 struct ClientCtorParam {
   CtorKind kind;
-  std::string token_or_queue;
+  std::string tokenOrQueue;
   std::string url;
-  bool is_hpc = false;
+  bool isHPC = false;
 };
 
 class MQSS_Client_Device_Test
@@ -52,11 +52,11 @@ protected:
       break;
 
     case CtorKind::StringBool:
-      client = mqss::client::MQSSClient{p.token_or_queue, p.is_hpc};
+      client = mqss::client::MQSSClient{p.tokenOrQueue, p.isHPC};
       break;
 
     case CtorKind::StringString:
-      client = mqss::client::MQSSClient{p.token_or_queue, p.url};
+      client = mqss::client::MQSSClient{p.tokenOrQueue, p.url};
       break;
     }
   }
@@ -80,58 +80,58 @@ TEST_P(MQSS_Client_Device_Test, ClientGetAllResources) {
 
 
 TEST_P(MQSS_Client_Device_Test, ClientGetAResource) {
-  std::vector<std::string> device_names = {"QLM", "Q5", "Q20", "AQT20",
+  std::vector<std::string> deviceNames = {"QLM", "Q5", "Q20", "AQT20",
                                            "QExa20"};
-  for (auto device_name : device_names) {
-    std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  for (auto deviceName : deviceNames) {
+    std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
     ASSERT_TRUE(device.has_value());
   }
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientGetAResourceFalse) {
-  std::vector<std::string> device_names = {"Eviden", "IQM5", "IQM20", "AQT",
+  std::vector<std::string> deviceNames = {"Eviden", "IQM5", "IQM20", "AQT",
                                            "QExa120"};
-  for (auto device_name : device_names) {
-    std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  for (auto deviceName : deviceNames) {
+    std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
     ASSERT_FALSE(device.has_value());
   }
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckResourceName) {
-  std::string golden_device_name = "QLM";
-  std::optional<mqss::client::Device> device = client.getResourceInfo(golden_device_name);
+  std::string goldenDeviceName = "QLM";
+  std::optional<mqss::client::Device> device = client.getResourceInfo(goldenDeviceName);
   ASSERT_TRUE(device.has_value());
-  ASSERT_EQ((*device).name(), golden_device_name);
+  ASSERT_EQ((*device).getName(), goldenDeviceName);
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckQubitCount) {
-  std::string device_name = "Q5";
-  std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  std::string deviceName = "Q5";
+  std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
   ASSERT_TRUE(device.has_value());
-  ASSERT_GE((*device).qubit_count(), 0);
+  ASSERT_GE((*device).getQubitCount(), 0);
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckIfOnline) {
   /* If the device is under maintenance, this test might fail.*/
-  std::string device_name = "AQT20";
-  std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  std::string deviceName = "AQT20";
+  std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
   ASSERT_TRUE(device.has_value());
-  ASSERT_EQ((*device).online(), true);
+  ASSERT_EQ((*device).isOnline(), true);
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckCouplingMap) {
 
-  std::string device_name = "AQT20";
-  std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  std::string deviceName = "AQT20";
+  std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
   ASSERT_TRUE(device.has_value());
-  ASSERT_GE((*device).coupling_map().size(), 0);
+  ASSERT_GE((*device).getCouplingMap().size(), 0);
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckNativeGateset) {
-  std::string device_name = "Q20";
-  std::optional<mqss::client::Device> device = client.getResourceInfo(device_name);
+  std::string deviceName = "Q20";
+  std::optional<mqss::client::Device> device = client.getResourceInfo(deviceName);
   ASSERT_TRUE(device.has_value());
-  ASSERT_GE((*device).native_gateset().size(), 0);
+  ASSERT_GE((*device).getNativeGateset().size(), 0);
 }
 
 int main(int argc, char **argv) {

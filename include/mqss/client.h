@@ -1,229 +1,154 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <optional>
+#include <regex>
+#include <string>
+#include <vector>
 
 #include <nlohmann/json.hpp>
-#include <regex>
-using json = nlohmann::json;
 
 namespace mqss::client {
 
-class MQSS_Base_Client {
+class MQSSBaseClient {
 public:
-  virtual ~MQSS_Base_Client() = default;
+  virtual ~MQSSBaseClient() = default;
   virtual std::string get(const std::string &path) = 0;
-  virtual std::string post(const std::string &path, const json &data) = 0;
+  virtual std::string post(const std::string &path,
+                           const nlohmann::json &data) = 0;
   virtual void cancel(const std::string &path) = 0;
 };
 
-template <typename T, typename Converter>
-std::vector<T> extract(const json &response, const std::string &key,
-                       const std::regex &pattern, Converter &&convert) {
-  std::vector<T> result;
-
-  const auto it = response.find(key);
-  if (it == response.end() || !it->is_string())
-    return result;
-
-  const std::string text = it->get<std::string>();
-  if (text == "None")
-    return result;
-
-  std::smatch match;
-  auto begin = text.cbegin();
-  auto end = text.cend();
-
-  while (std::regex_search(begin, end, match, pattern)) {
-    result.push_back(convert(match));
-    begin = match.suffix().first;
-  }
-
-  return result;
-}
-
 class Device {
 public:
-  explicit Device(std::string name, unsigned qubit_count, bool online,
-                  std::vector<std::pair<int, int>> coupling_map,
-                  std::vector<std::string> native_gateset)
-      : name_(std::move(name)), qubit_count_(qubit_count), online_(online),
-        coupling_map_(std::move(coupling_map)),
-        native_gateset_(std::move(native_gateset)) {}
+  Device(std::string name, unsigned qubitCount, bool online,
+         std::vector<std::pair<int, int>> couplingMap,
+         std::vector<std::string> nativeGateset);
 
-  const std::string &name() const noexcept { return name_; }
-  unsigned qubit_count() const noexcept { return qubit_count_; }
-  bool online() const noexcept { return online_; }
+  const std::string &getName() const noexcept { return mName; }
+  unsigned getQubitCount() const noexcept { return mQubitCount; }
+  bool isOnline() const noexcept { return mOnline; }
 
-  const std::vector<std::pair<int, int>> &coupling_map() const noexcept {
-    return coupling_map_;
+  const std::vector<std::pair<int, int>> &getCouplingMap() const noexcept {
+    return mCouplingMap;
   }
 
-  const std::vector<std::string> &native_gateset() const noexcept {
-    return native_gateset_;
+  const std::vector<std::string> &getNativeGateset() const noexcept {
+    return mNativeGateset;
   }
 
-  static Device from_json(const json &response) {
-
-    std::string name = response.value("name", "");
-    unsigned qubits = response.value("qubits", 0);
-    bool online = response.value("online", false);
-
-    auto coupling_map = extract<std::pair<int, int>>(
-        response, "connectivity", std::regex(R"(\(\s*(\d+)\s*,\s*(\d+)\s*\))"),
-        [](const std::smatch &m) {
-          return std::make_pair(std::stoi(m[1]), std::stoi(m[2]));
-        });
-
-    auto gates =
-        extract<std::string>(response, "instructions", std::regex("'([^']+)'"),
-                             [](const std::smatch &m) { return m[1].str(); });
-    return Device{name, qubits, online, coupling_map, gates};
-  }
+  static Device fromJson(const nlohmann::json &response);
 
 private:
-  std::string name_;
-  unsigned qubit_count_;
-  bool online_;
-  std::vector<std::pair<int, int>> coupling_map_;
-  std::vector<std::string> native_gateset_;
+  std::string mName;
+  unsigned mQubitCount;
+  bool mOnline;
+  std::vector<std::pair<int, int>> mCouplingMap;
+  std::vector<std::string> mNativeGateset;
 };
 
-class Job_Request {
-  std::string uuid;
+class JobRequest {
+
+private:
+  std::string mUuid;
 
 public:
-  virtual ~Job_Request() = default;
-  virtual json to_json() const = 0;
+  virtual ~JobRequest() = default;
+  virtual nlohmann::json toJson() const = 0;
   virtual std::string getPath() const = 0;
-  std::string getUUID() { return uuid; }
-  void setUUID(std::string _uuid) { uuid = _uuid; }
+  std::string getUuid() const { return mUuid; }
+  void setUuid(const std::string& uuid) { mUuid = uuid; }
 };
 
-class Circuit_Job_Request : public Job_Request {
+class CircuitJobRequest : public JobRequest {
 private:
-  std::string circuit;
-  std::string circuit_format;
-  std::string resource_name;
-  unsigned int shots;
-  bool no_modify;
-  bool queued;
+  std::string mCircuit;
+  std::string mCircuitFormat;
+  std::string mResourceName;
+  unsigned int mShots;
+  bool mNoModify;
+  bool mQueued;
 
 public:
-  Circuit_Job_Request() {};
+  CircuitJobRequest(){};
 
-  Circuit_Job_Request(std::string circuit, std::string circuit_format,
-                      std::string resource_name, unsigned int shots,
-                      bool no_modify, bool queued)
-      : circuit(circuit), circuit_format(circuit_format),
-        resource_name(resource_name), shots(shots), no_modify(no_modify),
-        queued(queued) {}
+  CircuitJobRequest(std::string circuit, std::string circuitFormat,
+                    std::string resourceName, unsigned int shots, bool noModify,
+                    bool queued);
 
-  void setCircuit(std::string _circuit) { circuit = _circuit; }
-  std::string getCircuit() { return circuit; }
-  void setCircuitFormat(std::string _circuit_format) {
-    circuit_format = _circuit_format;
+  void setCircuit(std::string circuit) { mCircuit = circuit; }
+  std::string getCircuit() const { return mCircuit; }
+  void setCircuitFormat(std::string circuitFormat) {
+    mCircuitFormat = circuitFormat;
   }
-  std::string getCircuitFormat() { return circuit_format; }
-  void setResourceName(std::string _resource_name) {
-    resource_name = _resource_name;
+  std::string getCircuitFormat() const { return mCircuitFormat; }
+  void setResourceName(const std::string &resourceName) {
+    mResourceName = resourceName;
   }
-  std::string getResourceName() { return resource_name; }
-  void setShots(unsigned int _shots) { shots = _shots; }
-  unsigned int getShots() { return shots; }
-  void setNoModify(bool _no_modify) { no_modify = _no_modify; }
-  bool isNoModify() { return no_modify; }
-  void setQueued(bool _queued) { queued = _queued; }
-  bool isQueued() { return queued; }
+  std::string getResourceName() const { return mResourceName; }
+  void setShots(unsigned int shots) { mShots = shots; }
+  unsigned int getShots() const { return mShots; }
+  void setNoModify(bool noModify) { mNoModify = noModify; }
+  bool isNoModify() const { return mNoModify; }
+  void setQueued(bool queued) { mQueued = queued; }
+  bool isQueued() const { return mQueued; }
 
-  json to_json() const {
-    json job_json = {
-        {"circuit", circuit},
-        {"circuit_format", circuit_format},
-        {"resource_name", resource_name},
-        {"shots", shots},
-        {"no_modify", no_modify},
-        {"queued", queued},
-    };
-
-    return job_json;
-  }
+  nlohmann::json toJson() const;
 
   std::string getPath() const { return "job"; }
 };
 
-class Hamiltonian_Job_Request : public Job_Request {
+class HamiltonianJobRequest : public JobRequest {
 private:
-  std::string resource_name;
-  std::string interaction_str;
-  std::string coefficients_str;
+  std::string mResourceName;
+  std::string mInteractionStr;
+  std::string mCoefficientsStr;
 
 public:
-  Hamiltonian_Job_Request(std::string resource_name,
-                          std::string interaction_str,
-                          std::string coefficients_str)
-      : resource_name(resource_name), interaction_str(interaction_str),
-        coefficients_str(coefficients_str) {}
-  Hamiltonian_Job_Request() {};
+  HamiltonianJobRequest(std::string resourceName, std::string interactionStr,
+                        std::string coefficientsStr);
 
-  void setResourceName(std::string _resource_name) {
-    resource_name = _resource_name;
-  }
-  std::string getResourceName() { return resource_name; }
+  HamiltonianJobRequest(){};
 
-  void setInteractionString(std::string _interaction_str) {
-    interaction_str = _interaction_str;
+  void setResourceName(std::string resourceName) {
+    mResourceName = resourceName;
   }
-  std::string getInteractionString() { return interaction_str; }
+  std::string getResourceName() const { return mResourceName; }
 
-  void setCoefficientsString(std::string _coefficients_str) {
-    coefficients_str = _coefficients_str;
+  void setInteractionString(std::string interactionStr) {
+    mInteractionStr = interactionStr;
   }
-  std::string getCoefficientsString() { return coefficients_str; }
-  json to_json() const {
-    json job_json = {{"resource_name", resource_name},
-                     {"interaction_str", interaction_str},
-                     {"coefficients_str", coefficients_str}};
+  std::string getInteractionString() const { return mInteractionStr; }
 
-    return job_json;
+  void setCoefficientsString(std::string coefficientsStr) {
+    mCoefficientsStr = coefficientsStr;
   }
+  std::string getCoefficientsString() const { return mCoefficientsStr; }
+
+  nlohmann::json toJson() const;
 
   std::string getPath() const { return "hamiltonian_job"; }
 };
 
-class Job_Result {
+class JobResult {
+
+  std::map<std::string, unsigned int> mResults;
+  std::string mTimestampCompleted;
+  std::string mTimestampSubmitted;
+  std::string mTimestampScheduled;
 
 public:
-  std::map<std::string, unsigned int> results;
-  std::string timestamp_completed;
-  std::string timestamp_submitted;
-  std::string timestamp_scheduled;
+  JobResult(std::map<std::string, unsigned int> results,
+            std::string timestampCompleted, std::string timestampSubmitted,
+            std::string timestampScheduled);
 
-  Job_Result(std::map<std::string, unsigned int> results,
-             std::string timestamp_completed, std::string timestamp_submitted,
-             std::string timestamp_scheduled)
-      : results(results), timestamp_completed(timestamp_completed),
-        timestamp_submitted(timestamp_submitted),
-        timestamp_scheduled(timestamp_scheduled) {}
+  std::map<std::string, unsigned int> getResults() const { return mResults; }
+  std::string getTimestampCompleted() const { return mTimestampCompleted; }
+  std::string getTimestampSubmitted() const { return mTimestampSubmitted; }
+  std::string getTimestampScheduled() const { return mTimestampScheduled; }
 
-  static Job_Result from_json(json &parsed) {
-    const json &_parsed_job_result = parsed;
-
-    std::string _circuit_result = _parsed_job_result.at("result");
-
-    std::map<std::string, unsigned int> _circuit_result_dict;
-
-    json _result_map = json::parse(_circuit_result);
-    for (auto &[key, value] : _result_map.items()) {
-      _circuit_result_dict[key] = value.get<unsigned int>();
-    }
-
-    return Job_Result(
-        _circuit_result_dict,
-        _parsed_job_result.at("timestamp_completed").get<std::string>(),
-        _parsed_job_result.at("timestamp_submitted").get<std::string>(),
-        _parsed_job_result.at("timestamp_scheduled").get<std::string>());
-  }
+  static JobResult fromJson(const nlohmann::json &parsed);
 };
 
 class MQSSClient {
@@ -233,21 +158,21 @@ public:
   MQSSClient(const std::string &token, const std::string &url);
 
   // Devices
-  std::vector<Device> getAllResources();
-  std::optional<Device> getResourceInfo(const std::string &resource);
+  std::vector<Device> getAllResources() const;
+  std::optional<Device> getResourceInfo(const std::string &resource) const;
 
   // Jobs
-  std::optional<std::string> submitJob(Job_Request &job);
-  void cancelJob(Job_Request &job);
-  std::string getJobStatus(Job_Request &job);
-  std::unique_ptr<Job_Result> getJobResult(Job_Request &job);
-  std::unique_ptr<Job_Result> waitForJobResult(Job_Request &job,
-                                               size_t poll_seconds = 2);
+  std::optional<std::string> submitJob(JobRequest &job);
+  void cancelJob(JobRequest &job);
+  std::string getJobStatus(const JobRequest &job);
+  std::unique_ptr<JobResult> getJobResult(const JobRequest &job);
+  std::unique_ptr<JobResult> waitForJobResult(const JobRequest &job,
+                                              size_t poll_seconds = 2);
 
-  int getNumberPendingJobs(const std::string &resource);
+  int getNumberPendingJobs(const std::string &resource) const;
 
 private:
-  std::unique_ptr<MQSS_Base_Client> client_;
+  std::unique_ptr<MQSSBaseClient> mClient;
 };
 
 } // namespace mqss::client

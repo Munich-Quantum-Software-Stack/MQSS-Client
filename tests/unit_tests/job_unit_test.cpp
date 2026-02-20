@@ -37,9 +37,9 @@ enum class CtorKind {
 
 struct ClientCtorParam {
   CtorKind kind;
-  std::string token_or_queue;
+  std::string tokenOrQueue;
   std::string url;
-  bool is_hpc = false;
+  bool isHPC = false;
 };
 
 class MQSS_Client_Device_Test
@@ -54,11 +54,11 @@ protected:
       break;
 
     case CtorKind::StringBool:
-      client = mqss::client::MQSSClient{p.token_or_queue, p.is_hpc};
+      client = mqss::client::MQSSClient{p.tokenOrQueue, p.isHPC};
       break;
 
     case CtorKind::StringString:
-      client = mqss::client::MQSSClient{p.token_or_queue, p.url};
+      client = mqss::client::MQSSClient{p.tokenOrQueue, p.url};
       break;
     }
   }
@@ -84,45 +84,45 @@ cx q[0], q[1];
 measure q -> c;)";
 
 TEST_P(MQSS_Client_Device_Test, ClientSubmitJob) {
-  mqss::client::Circuit_Job_Request job =
-      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid_or_null = client.submitJob(job);
-  ASSERT_TRUE(uuid_or_null.has_value());
+  mqss::client::CircuitJobRequest job =
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  auto uuid = client.submitJob(job);
+  ASSERT_TRUE(uuid.has_value());
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCancelJob) {
-  if (GetParam().is_hpc)
+  if (GetParam().isHPC)
     GTEST_SKIP();
-  mqss::client::Circuit_Job_Request job =
-      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid_or_null = client.submitJob(job);
-  ASSERT_TRUE(uuid_or_null.has_value());
+  mqss::client::CircuitJobRequest job =
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  auto uuid = client.submitJob(job);
+  ASSERT_TRUE(uuid.has_value());
   client.cancelJob(job);
   ASSERT_STREQ(client.getJobStatus(job).c_str(), "CANCELLED");
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientSubmitHamiltonianJob) {
-  if (GetParam().is_hpc)
+  if (GetParam().isHPC)
     GTEST_SKIP();
-  mqss::client::Hamiltonian_Job_Request job =
-      mqss::client::Hamiltonian_Job_Request("QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
-  auto uuid_or_null = client.submitJob(job);
-  ASSERT_TRUE(uuid_or_null.has_value());
+  mqss::client::HamiltonianJobRequest job =
+      mqss::client::HamiltonianJobRequest("QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
+  auto uuid = client.submitJob(job);
+  ASSERT_TRUE(uuid.has_value());
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckJobStatus) {
-  mqss::client::Circuit_Job_Request job =
-      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid_or_null = client.submitJob(job);
-  ASSERT_TRUE(uuid_or_null.has_value());
+  mqss::client::CircuitJobRequest job =
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  auto uuid = client.submitJob(job);
+  ASSERT_TRUE(uuid.has_value());
   std::string status = client.getJobStatus(job);
   ASSERT_STRNE(status.c_str(), "");
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
-  mqss::client::Circuit_Job_Request job = mqss::client::Circuit_Job_Request();
-  std::string CircuitFormat("qasm");
-  std::string ResourceName("AQT20");
+  mqss::client::CircuitJobRequest job = mqss::client::CircuitJobRequest();
+  std::string circuitFormat("qasm");
+  std::string resourceName("AQT20");
   unsigned int shots = 10;
   bool isQueued = false;
   bool isNoModify = false;
@@ -130,11 +130,11 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
   job.setCircuit(TEST_CIRCUIT);
   ASSERT_STREQ(job.getCircuit().c_str(), TEST_CIRCUIT.c_str());
 
-  job.setCircuitFormat(CircuitFormat);
-  ASSERT_STREQ(job.getCircuitFormat().c_str(), CircuitFormat.c_str());
+  job.setCircuitFormat(circuitFormat);
+  ASSERT_STREQ(job.getCircuitFormat().c_str(), circuitFormat.c_str());
 
-  job.setResourceName(ResourceName);
-  ASSERT_STREQ(job.getResourceName().c_str(), ResourceName.c_str());
+  job.setResourceName(resourceName);
+  ASSERT_STREQ(job.getResourceName().c_str(), resourceName.c_str());
 
   job.setShots(shots);
   ASSERT_EQ(job.getShots(), shots);
@@ -147,32 +147,32 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientCheckHamiltonianJobSetterAndGetter) {
-  mqss::client::Hamiltonian_Job_Request job = mqss::client::Hamiltonian_Job_Request();
-  std::string CoefficientsString("0.5 0.1 0.8 1;");
-  std::string Interaction_str("0 1; 1 2; 0 2; 0 3;");
+  mqss::client::HamiltonianJobRequest job = mqss::client::HamiltonianJobRequest();
+  std::string coefficientsString("0.5 0.1 0.8 1;");
+  std::string interactionString("0 1; 1 2; 0 2; 0 3;");
 
-  job.setCoefficientsString(CoefficientsString);
-  ASSERT_STREQ(job.getCoefficientsString().c_str(), CoefficientsString.c_str());
+  job.setCoefficientsString(coefficientsString);
+  ASSERT_STREQ(job.getCoefficientsString().c_str(), coefficientsString.c_str());
 
-  job.setInteractionString(Interaction_str);
-  ASSERT_STREQ(job.getInteractionString().c_str(), Interaction_str.c_str());
+  job.setInteractionString(interactionString);
+  ASSERT_STREQ(job.getInteractionString().c_str(), interactionString.c_str());
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientWaitForResult) {
-  if (GetParam().is_hpc)
+  if (GetParam().isHPC)
     GTEST_SKIP();
-  mqss::client::Circuit_Job_Request job =
-      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::CircuitJobRequest job =
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
   auto result = client.waitForJobResult(job);
   ASSERT_NE(result, nullptr);
-  ASSERT_NE(result->results.size(), 0);
+  ASSERT_NE(result->getResults().size(), 0);
 }
 
 TEST_P(MQSS_Client_Device_Test, ClientGetNumPendingJobs) {
-  mqss::client::Circuit_Job_Request job =
-      mqss::client::Circuit_Job_Request(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
+  mqss::client::CircuitJobRequest job =
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
   int n_job = client.getNumberPendingJobs("QLM");

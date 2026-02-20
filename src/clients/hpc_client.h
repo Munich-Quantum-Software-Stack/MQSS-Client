@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "mqss/client.h"
 #include "rabbitmq_client.h"
@@ -9,83 +9,24 @@
 
 using namespace mqss::client;
 
-inline std::string _getHostName() {
-  size_t max_hostname_size = sysconf(_SC_HOST_NAME_MAX);
-  if (max_hostname_size == -1) {
-    max_hostname_size = 256;
-  }
-  char *hostname = new char[max_hostname_size];
-  if (gethostname(hostname, max_hostname_size) == 0) {
-    std::string result(hostname);
-    delete[] hostname;
-    return result;
-  } else {
-    delete[] hostname;
-    return "";
-  }
-}
+class MQSSHPCClient : public MQSSBaseClient {
+private:
+  std::string mOffloadListenerQueueName;
+  std::string mResponseQueueName;
 
-class MQSS_HPC_Client : public MQSS_Base_Client {
-  std::string offload_listener_queue_name;
-  std::string response_queue_name;
-
-  MQSS_RabbitMQ_Client rabbitmq_client;
+  MQSSRabbitMQClient mRabbitmqClient;
 
 public:
-  MQSS_HPC_Client(std::string offload_listener_queue_name = "",
-                  std::string response_queue_name = "")
-      : offload_listener_queue_name(
-            offload_listener_queue_name.empty()
-                ? "qoffload_api_request_reception_queue_" + _getHostName()
-                : offload_listener_queue_name),
-        response_queue_name(response_queue_name.empty()
-                                ? "response_queue_" + _getHostName() + "_" +
-                                      boost::uuids::to_string(
-                                          boost::uuids::random_generator()())
-                                          .substr(0, 8)
-                                : response_queue_name),
-        rabbitmq_client(), MQSS_Base_Client() {
 
-    int x = rabbitmq_client.connect();
-    rabbitmq_client.declare_queue(offload_listener_queue_name);
-    rabbitmq_client.declare_queue(response_queue_name);
-  }
+  MQSSHPCClient(std::string offloadListenerQueueName = "",
+                std::string responseQueueName = "");
 
-  // MQSS_HPC_Client() : MQSS_Base_Client() {}
+  // MQSS_HPC_Client() : MQSSBaseClient() {}
 
-  std::string get(const std::string &path) override {
-    std::string request, response;
-    json request_json = {
-        {"authorization", ""},
-        {"method", "GET"},
-        {"request", path},
-        {"data", ""},
-        {"response_queue", response_queue_name},
-    };
-    int err =
-        rabbitmq_client.send(offload_listener_queue_name, request_json.dump());
-    response = rabbitmq_client.receive(response_queue_name);
-    return response;
-  }
+  std::string get(const std::string &path) override;
 
-  std::string post(const std::string &path, const json &data) override {
-    json request_json = {
-        {"authorization", ""},
-        {"method", "POST"},
-        {"request", path},
-        {"data", data},
-        {"response_queue", response_queue_name},
-    };
+  std::string post(const std::string &path,
+                   const nlohmann::json &data) override;
 
-    rabbitmq_client.send(offload_listener_queue_name, request_json.dump());
-
-    std::string response = rabbitmq_client.receive(response_queue_name);
-    return response;
-  }
-
-  void cancel(const std::string &path) override {
-    std::string request, response;
-    rabbitmq_client.send(offload_listener_queue_name, request);
-    response = rabbitmq_client.receive(response_queue_name);
-  }
+  void cancel(const std::string &path) override;
 };

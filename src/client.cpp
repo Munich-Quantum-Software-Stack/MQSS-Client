@@ -1,85 +1,97 @@
-#include "clients/hpc_client.h" 
-#include "clients/rest_client.h" 
-#include <iostream>
+#include "clients/hpc_client.h"
+#include "clients/rest_client.h"
+#include <chrono>
+#include <optional>
 #include <thread>
 
 using namespace mqss::client;
 
-
-MQSSClient::MQSSClient() { client_ = std::make_unique<MQSS_HPC_Client>(); }
+MQSSClient::MQSSClient() { mClient = std::make_unique<MQSSHPCClient>(); }
 
 MQSSClient::MQSSClient(const std::string &token_or_queue, bool is_hpc) {
   if (is_hpc) {
-    client_ = std::make_unique<MQSS_HPC_Client>(token_or_queue);
+    mClient = std::make_unique<MQSSHPCClient>(token_or_queue);
   } else {
-    client_ = std::make_unique<MQSS_Rest_Client>(token_or_queue);
+    mClient = std::make_unique<MQSSRestClient>(token_or_queue);
   }
 }
 
 MQSSClient::MQSSClient(const std::string &token, const std::string &url) {
-  client_ = std::make_unique<MQSS_Rest_Client>(token, url);
+  mClient = std::make_unique<MQSSRestClient>(token, url);
 }
 
-std::vector<Device> MQSSClient::getAllResources() {
+std::vector<Device> MQSSClient::getAllResources() const {
   std::vector<Device> devices;
-  std::string resp = client_->get("resources");
-  json parsed = json::parse(resp);
+  std::string resp = mClient->get("resources");
+  if (!nlohmann::json::accept(resp))
+    return {};
+  nlohmann::json parsed = nlohmann::json::parse(resp);
   for (auto &item : parsed) {
-    devices.push_back(Device::from_json(item));
+    devices.push_back(Device::fromJson(item));
   }
   return devices;
 }
 
 std::optional<Device>
-MQSSClient::getResourceInfo(const std::string &resource) {
-  std::string resp = client_->get("resources/" + resource);
+MQSSClient::getResourceInfo(const std::string &resource) const {
+  std::string resp = mClient->get("resources/" + resource);
   if (resp.find("RESOURCE NOT FOUND") != std::string::npos)
     return std::nullopt;
-  json parsed = json::parse(resp);
-  if (parsed.contains("ERROR"))
-    return std::nullopt;
-  return Device::from_json(parsed);
-}
-std::optional<std::string> MQSSClient::submitJob(Job_Request &job) {
-  std::string path = job.getPath();
-  std::string result = client_->post(path, job.to_json());
-  bool isValid = json::accept(result);
-  if (result.empty() || !isValid)
+
+  if (!nlohmann::json::accept(resp))
     return std::nullopt;
 
-  json parsed = json::parse(result);
-  std::string uuid = parsed["uuid"];
-  job.setUUID(uuid);
+  nlohmann::json parsed = nlohmann::json::parse(resp);
+  if (parsed.contains("ERROR"))
+    return std::nullopt;
+  return Device::fromJson(parsed);
+}
+std::optional<std::string> MQSSClient::submitJob(JobRequest &job) {
+  std::string path = job.getPath();
+  std::string result = mClient->post(path, job.toJson());
+
+  if (result.empty() || !nlohmann::json::accept(result))
+    return std::nullopt;
+
+  nlohmann::json parsed = nlohmann::json::parse(result);
+  if (!parsed.contains("uuid"))
+    return std::nullopt;
+
+  std::string uuid = parsed["uuid"].get<std::string>();
+  job.setUuid(uuid);
   return uuid;
 }
 
-void MQSSClient::cancelJob(Job_Request &job) {
-  std::string path = job.getPath() + "/" + job.getUUID();
-  client_->cancel(path);
+void MQSSClient::cancelJob(JobRequest &job) {
+  std::string path = job.getPath() + "/" + job.getUuid();
+  mClient->cancel(path);
 }
 
-std::string MQSSClient::getJobStatus(Job_Request &job) {
-  std::string path = job.getPath() + "/" + job.getUUID() + "/status";
-  std::string resp = client_->get(path);
+std::string MQSSClient::getJobStatus(const JobRequest &job) {
+  std::string path = job.getPath() + "/" + job.getUuid() + "/status";
+  std::string resp = mClient->get(path);
   if (resp.empty())
     return "";
 
-  json parsed = json::parse(resp);
+  if (!nlohmann::json::accept(resp))
+    return "";
+
+  nlohmann::json parsed = nlohmann::json::parse(resp);
   return parsed.value("status", "");
 }
 
-std::unique_ptr<Job_Result> MQSSClient::getJobResult(Job_Request &job) {
-  std::string path = job.getPath() + "/" + job.getUUID() + "/result";
-  std::string resp = client_->get(path);
-  if (resp.empty())
+std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest &job) {
+  std::string path = job.getPath() + "/" + job.getUuid() + "/result";
+  std::string resp = mClient->get(path);
+  if (resp.empty() || !nlohmann::json::accept(resp))
     return nullptr;
 
-  json parsed = json::parse(resp);
-  return std::make_unique<Job_Result>(Job_Result::from_json(parsed));
+  nlohmann::json parsed = nlohmann::json::parse(resp);
+  return std::make_unique<JobResult>(JobResult::fromJson(parsed));
 }
 
-std::unique_ptr<Job_Result> MQSSClient::waitForJobResult(Job_Request &job,
-                                                          size_t poll_seconds) {
+std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest &job,
+                                                        size_t poll_seconds) {
 
   while (true) {
     std::string status = getJobStatus(job);
@@ -92,12 +104,13 @@ std::unique_ptr<Job_Result> MQSSClient::waitForJobResult(Job_Request &job,
   return getJobResult(job);
 }
 
-int MQSSClient::getNumberPendingJobs(const std::string &resource) {
+int MQSSClient::getNumberPendingJobs(const std::string &resource) const {
   std::string resp =
-      client_->get("resources/" + resource + "/num_pending_jobs");
-  if (resp.empty())
+      mClient->get("resources/" + resource + "/num_pending_jobs");
+  if (resp.empty() || !nlohmann::json::accept(resp))
     return -1;
 
-  json parsed = json::parse(resp);
+  nlohmann::json parsed = nlohmann::json::parse(resp);
+
   return parsed.value("num_pending_jobs", -1);
 }
