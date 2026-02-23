@@ -11,17 +11,14 @@ using namespace mqss::client;
 
 class MQSSHPCClient : public MQSSBaseClient {
 private:
+  std::string token;
   std::string mOffloadListenerQueueName;
   std::string mResponseQueueName;
 
   MQSSRabbitMQClient mRabbitmqClient;
 
 public:
-
-  MQSSHPCClient(std::string offloadListenerQueueName = "",
-                std::string responseQueueName = "");
-
-  // MQSS_HPC_Client() : MQSSBaseClient() {}
+  MQSSHPCClient(std::string token, std::string offloadListenerQueueName);
 
   std::string get(const std::string &path) override;
 

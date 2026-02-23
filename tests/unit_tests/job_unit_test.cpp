@@ -29,50 +29,30 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #define MQSS_API_TOKEN std::getenv("MQSS_API_TOKEN")
 #define MQSS_API_URL "https://portal.quantum.lrz.de:4000/v1/"
 
-enum class CtorKind {
-  Empty,
-  StringBool,
-  StringString,
-};
-
 struct ClientCtorParam {
-  CtorKind kind;
-  std::string tokenOrQueue;
-  std::string url;
+  std::string token;
+  std::string url_or_queue;
   bool isHPC = false;
 };
 
-class MQSS_Client_Device_Test
-    : public ::testing::TestWithParam<ClientCtorParam> {
+class MQSSClientJobTest : public ::testing::TestWithParam<ClientCtorParam> {
 protected:
   void SetUp() override {
     const auto &p = GetParam();
 
-    switch (p.kind) {
-    case CtorKind::Empty:
-      client = mqss::client::MQSSClient{};
-      break;
-
-    case CtorKind::StringBool:
-      client = mqss::client::MQSSClient{p.tokenOrQueue, p.isHPC};
-      break;
-
-    case CtorKind::StringString:
-      client = mqss::client::MQSSClient{p.tokenOrQueue, p.url};
-      break;
-    }
+    client = mqss::client::MQSSClient{p.token, p.url_or_queue, p.isHPC};
   }
 
   mqss::client::MQSSClient client;
 };
 
-INSTANTIATE_TEST_SUITE_P(
-    MQSS_Test_Instantiation, MQSS_Client_Device_Test,
-    ::testing::Values(
-        // ClientCtorParam{CtorKind::Empty},
-        ClientCtorParam{CtorKind::StringBool, MQSS_HPC_QUEUENAME, "", true},
-        ClientCtorParam{CtorKind::StringBool, MQSS_API_TOKEN, "", false},
-        ClientCtorParam{CtorKind::StringString, MQSS_API_TOKEN, MQSS_API_URL}));
+INSTANTIATE_TEST_SUITE_P(MQSS_Test_Instantiation, MQSSClientJobTest,
+                         ::testing::Values(
+                             // ClientCtorParam{CtorKind::Empty},
+                             ClientCtorParam{"", MQSS_HPC_QUEUENAME, true},
+                             ClientCtorParam{MQSS_API_TOKEN, MQSS_API_URL,
+                                             false}));
+
 
 static const std::string TEST_CIRCUIT = R"(
 OPENQASM 2.0;
@@ -83,14 +63,14 @@ h q[0];
 cx q[0], q[1];
 measure q -> c;)";
 
-TEST_P(MQSS_Client_Device_Test, ClientSubmitJob) {
+TEST_P(MQSSClientJobTest, ClientSubmitJob) {
   mqss::client::CircuitJobRequest job =
       mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid = client.submitJob(job);
   ASSERT_TRUE(uuid.has_value());
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientCancelJob) {
+TEST_P(MQSSClientJobTest, ClientCancelJob) {
   if (GetParam().isHPC)
     GTEST_SKIP();
   mqss::client::CircuitJobRequest job =
@@ -101,16 +81,16 @@ TEST_P(MQSS_Client_Device_Test, ClientCancelJob) {
   ASSERT_STREQ(client.getJobStatus(job).c_str(), "CANCELLED");
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientSubmitHamiltonianJob) {
+TEST_P(MQSSClientJobTest, ClientSubmitHamiltonianJob) {
   if (GetParam().isHPC)
     GTEST_SKIP();
-  mqss::client::HamiltonianJobRequest job =
-      mqss::client::HamiltonianJobRequest("QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
+  mqss::client::HamiltonianJobRequest job = mqss::client::HamiltonianJobRequest(
+      "QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
   auto uuid = client.submitJob(job);
   ASSERT_TRUE(uuid.has_value());
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientCheckJobStatus) {
+TEST_P(MQSSClientJobTest, ClientCheckJobStatus) {
   mqss::client::CircuitJobRequest job =
       mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid = client.submitJob(job);
@@ -119,7 +99,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobStatus) {
   ASSERT_STRNE(status.c_str(), "");
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
+TEST_P(MQSSClientJobTest, ClientCheckJobSetterAndGetter) {
   mqss::client::CircuitJobRequest job = mqss::client::CircuitJobRequest();
   std::string circuitFormat("qasm");
   std::string resourceName("AQT20");
@@ -146,8 +126,9 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckJobSetterAndGetter) {
   ASSERT_EQ(job.isQueued(), isQueued);
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientCheckHamiltonianJobSetterAndGetter) {
-  mqss::client::HamiltonianJobRequest job = mqss::client::HamiltonianJobRequest();
+TEST_P(MQSSClientJobTest, ClientCheckHamiltonianJobSetterAndGetter) {
+  mqss::client::HamiltonianJobRequest job =
+      mqss::client::HamiltonianJobRequest();
   std::string coefficientsString("0.5 0.1 0.8 1;");
   std::string interactionString("0 1; 1 2; 0 2; 0 3;");
 
@@ -158,7 +139,7 @@ TEST_P(MQSS_Client_Device_Test, ClientCheckHamiltonianJobSetterAndGetter) {
   ASSERT_STREQ(job.getInteractionString().c_str(), interactionString.c_str());
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientWaitForResult) {
+TEST_P(MQSSClientJobTest, ClientWaitForResult) {
   if (GetParam().isHPC)
     GTEST_SKIP();
   mqss::client::CircuitJobRequest job =
@@ -170,7 +151,7 @@ TEST_P(MQSS_Client_Device_Test, ClientWaitForResult) {
   ASSERT_NE(result->getResults().size(), 0);
 }
 
-TEST_P(MQSS_Client_Device_Test, ClientGetNumPendingJobs) {
+TEST_P(MQSSClientJobTest, ClientGetNumPendingJobs) {
   mqss::client::CircuitJobRequest job =
       mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
@@ -178,7 +159,6 @@ TEST_P(MQSS_Client_Device_Test, ClientGetNumPendingJobs) {
   int n_job = client.getNumberPendingJobs("QLM");
   ASSERT_GE(n_job, 0);
 }
-
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

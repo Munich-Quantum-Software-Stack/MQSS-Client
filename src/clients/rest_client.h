@@ -6,8 +6,6 @@
 
 using namespace mqss::client;
 
-#define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
-
 class MQSSRestClient : public MQSSBaseClient {
 private:
   std::string mUrl;

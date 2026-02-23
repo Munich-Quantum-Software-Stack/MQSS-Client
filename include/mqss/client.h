@@ -7,12 +7,13 @@
 #include <string>
 #include <vector>
 
-#include <nlohmann/json.hpp>
 #include "device.h"
 #include "job.h"
+#include <nlohmann/json.hpp>
+
+#define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
 
 namespace mqss::client {
-
 
 class MQSSBaseClient {
 public:
@@ -23,13 +24,11 @@ public:
   virtual void cancel(const std::string &path) = 0;
 };
 
-
-
 class MQSSClient {
 public:
-  MQSSClient();
-  MQSSClient(const std::string &token_or_queue, bool is_hpc);
-  MQSSClient(const std::string &token, const std::string &url);
+  MQSSClient(const std::string &token = "",
+             const std::string &url_or_queue = MQP_DEFAULT_URL,
+             bool is_hpc = false);
 
   // Devices
   std::vector<Device> getAllResources() const;

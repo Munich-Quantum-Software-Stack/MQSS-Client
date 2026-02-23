@@ -19,13 +19,14 @@ find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(rabbitmq-c REQUIRED)
 
-add_library(mqss_client SHARED client.cpp device.cpp job.cpp clients/internal_clients.cpp)
+file(GLOB CLIENT_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/clients/*.cpp")
+
+add_library(mqss_client SHARED client.cpp device.cpp job.cpp ${CLIENT_SRC_FILES})
 
 target_include_directories(
   mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq
-                                      )
+target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq)
 include(GNUInstallDirs)
 
 install(TARGETS mqss_client
