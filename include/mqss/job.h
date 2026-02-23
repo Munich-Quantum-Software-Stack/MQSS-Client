@@ -100,11 +100,11 @@ public:
             std::string timestampCompleted, std::string timestampSubmitted,
             std::string timestampScheduled);
 
+  JobResult(const nlohmann::json &parsed);
+
   std::map<std::string, unsigned int> getResults() const { return mResults; }
   std::string getTimestampCompleted() const { return mTimestampCompleted; }
   std::string getTimestampSubmitted() const { return mTimestampSubmitted; }
   std::string getTimestampScheduled() const { return mTimestampScheduled; }
-
-  static JobResult fromJson(const nlohmann::json &parsed);
 };
 } // namespace mqss::client

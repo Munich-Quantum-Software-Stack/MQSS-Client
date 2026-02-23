@@ -44,7 +44,7 @@ JobResult::JobResult(std::map<std::string, unsigned int> results,
       mTimestampSubmitted(std::move(timestampSubmitted)),
       mTimestampScheduled(std::move(timestampScheduled)) {}
 
-JobResult JobResult::fromJson(const nlohmann::json &parsed) {
+JobResult::JobResult(const nlohmann::json &parsed) {
 
   const auto &rResultStr = parsed.at("result").get_ref<const std::string &>();
   nlohmann::json resultMap = nlohmann::json::parse(rResultStr);
@@ -53,8 +53,8 @@ JobResult JobResult::fromJson(const nlohmann::json &parsed) {
     resultMap[key] = value.get<unsigned int>();
   }
 
-  return JobResult(std::move(resultMap),
-                   parsed.at("timestamp_completed").get<std::string>(),
-                   parsed.at("timestamp_submitted").get<std::string>(),
-                   parsed.at("timestamp_scheduled").get<std::string>());
+  mResults = std::move(resultMap);
+  mTimestampCompleted = parsed.at("timestamp_completed").get<std::string>();
+  mTimestampSubmitted = parsed.at("timestamp_submitted").get<std::string>();
+  mTimestampScheduled = parsed.at("timestamp_scheduled").get<std::string>();
 }

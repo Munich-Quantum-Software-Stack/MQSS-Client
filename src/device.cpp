@@ -43,21 +43,24 @@ Device::Device(std::string name, unsigned qubitCount, bool online,
       mCouplingMap(std::move(couplingMap)),
       mNativeGateset(std::move(nativeGateset)) {}
 
-Device Device::fromJson(const nlohmann::json &response) {
+Device::Device(const nlohmann::json &json) {
 
-  std::string name = response.value("name", "");
-  unsigned qubitCount = response.value("qubits", 0);
-  bool online = response.value("online", false);
+  std::string name = json.value("name", "");
+  unsigned qubitCount = json.value("qubits", 0);
+  bool online = json.value("online", false);
 
   auto couplingMap = extractFromStringField<std::pair<int, int>>(
-      response, "connectivity", COUPLING_PATTERN, [](const std::smatch &m) {
+      json, "connectivity", COUPLING_PATTERN, [](const std::smatch &m) {
         return std::make_pair(std::stoi(m[1]), std::stoi(m[2]));
       });
 
   auto nativeGateset =
-      extractFromStringField<std::string>(response, "instructions", GATE_PATTERN,
+      extractFromStringField<std::string>(json, "instructions", GATE_PATTERN,
                            [](const std::smatch &m) { return m[1].str(); });
 
-  return Device{name, qubitCount, online, std::move(couplingMap),
-                std::move(nativeGateset)};
+  mName = std::move(name);
+  mQubitCount = qubitCount;
+  mOnline = online;
+  mCouplingMap = std::move(couplingMap);
+  mNativeGateset = std::move(nativeGateset);
 }

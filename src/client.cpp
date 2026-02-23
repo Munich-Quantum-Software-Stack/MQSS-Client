@@ -25,7 +25,7 @@ MQSSClient::MQSSClient(const std::string &token,
       return {};
     nlohmann::json parsed = nlohmann::json::parse(resp);
     for (auto &item : parsed) {
-      devices.push_back(Device::fromJson(item));
+      devices.push_back(Device(item));
     }
     return devices;
   }
@@ -42,7 +42,7 @@ MQSSClient::MQSSClient(const std::string &token,
     nlohmann::json parsed = nlohmann::json::parse(resp);
     if (parsed.contains("ERROR"))
       return std::nullopt;
-    return Device::fromJson(parsed);
+    return Device(parsed);
   }
   std::optional<std::string> MQSSClient::submitJob(JobRequest & job) {
     std::string path = job.getPath();
@@ -85,7 +85,7 @@ MQSSClient::MQSSClient(const std::string &token,
       return nullptr;
 
     nlohmann::json parsed = nlohmann::json::parse(resp);
-    return std::make_unique<JobResult>(JobResult::fromJson(parsed));
+    return std::make_unique<JobResult>(JobResult(parsed));
   }
 
   std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest &job,

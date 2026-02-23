@@ -10,6 +10,8 @@ public:
          std::vector<std::pair<int, int>> couplingMap,
          std::vector<std::string> nativeGateset);
 
+  Device(const nlohmann::json &json);
+
   const std::string &getName() const noexcept { return mName; }
   unsigned getQubitCount() const noexcept { return mQubitCount; }
   bool isOnline() const noexcept { return mOnline; }
@@ -21,8 +23,6 @@ public:
   const std::vector<std::string> &getNativeGateset() const noexcept {
     return mNativeGateset;
   }
-
-  static Device fromJson(const nlohmann::json &response);
 
 private:
   std::string mName;
