@@ -84,7 +84,7 @@ std::string MQSSRestClient::post(const std::string &path,
   return result;
 }
 
-void MQSSRestClient::cancel(const std::string &path) {
+void MQSSRestClient::del(const std::string &path) {
 
   CURL *curl = curl_easy_init();
   if (!curl)

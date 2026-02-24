@@ -4,13 +4,13 @@
 
 #include <nlohmann/json.hpp>
 namespace mqss::client {
-class Device {
+class Resource {
 public:
-  Device(std::string name, unsigned qubitCount, bool online,
+  Resource(std::string name, unsigned qubitCount, bool online,
          std::vector<std::pair<int, int>> couplingMap,
          std::vector<std::string> nativeGateset);
 
-  Device(const nlohmann::json &json);
+  Resource(const nlohmann::json &json);
 
   const std::string &getName() const noexcept { return mName; }
   unsigned getQubitCount() const noexcept { return mQubitCount; }

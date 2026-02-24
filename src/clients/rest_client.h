@@ -20,5 +20,5 @@ public:
   std::string post(const std::string &path,
                    const nlohmann::json &data) override;
 
-  void cancel(const std::string &path) override;
+  void del(const std::string &path) override;
 };

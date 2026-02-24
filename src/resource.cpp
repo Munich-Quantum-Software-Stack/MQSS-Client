@@ -1,4 +1,4 @@
-#include "mqss/device.h"
+#include "mqss/Resource.h"
 #include <regex>
 
 using namespace mqss::client;
@@ -36,14 +36,14 @@ std::vector<T> extractFromStringField(const nlohmann::json &response, const std:
 
 } // namespace
 
-Device::Device(std::string name, unsigned qubitCount, bool online,
+Resource::Resource(std::string name, unsigned qubitCount, bool online,
                std::vector<std::pair<int, int>> couplingMap,
                std::vector<std::string> nativeGateset)
     : mName(std::move(name)), mQubitCount(qubitCount), mOnline(online),
       mCouplingMap(std::move(couplingMap)),
       mNativeGateset(std::move(nativeGateset)) {}
 
-Device::Device(const nlohmann::json &json) {
+Resource::Resource(const nlohmann::json &json) {
 
   std::string name = json.value("name", "");
   unsigned qubitCount = json.value("qubits", 0);

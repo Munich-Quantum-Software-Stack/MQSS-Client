@@ -65,7 +65,7 @@ std::string MQSSHPCClient::post(const std::string &path,
   return response;
 }
 
-void MQSSHPCClient::cancel(const std::string &path) {
+void MQSSHPCClient::del(const std::string &path) {
   std::string request, response;
   mRabbitmqClient.send(mOffloadListenerQueueName, request);
   response = mRabbitmqClient.receive(mResponseQueueName);

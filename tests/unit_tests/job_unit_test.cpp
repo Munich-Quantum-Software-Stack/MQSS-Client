@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 #define MQSS_HPC_QUEUENAME std::getenv("MQSS_HPC_QUEUENAME")
 #define MQSS_API_TOKEN std::getenv("MQSS_API_TOKEN")
-#define MQSS_API_URL "https://portal.quantum.lrz.de:4000/v1/"
+#define MQSS_API_URL "https://portal-test.quantum.lrz.de:4000/v1"
 
 struct ClientCtorParam {
   std::string token;
@@ -146,7 +146,7 @@ TEST_P(MQSSClientJobTest, ClientWaitForResult) {
       mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
   auto uuid_or_null = client.submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
-  auto result = client.waitForJobResult(job);
+  auto result = client.getJobResult(job, true, 50);
   ASSERT_NE(result, nullptr);
   ASSERT_NE(result->getResults().size(), 0);
 }
