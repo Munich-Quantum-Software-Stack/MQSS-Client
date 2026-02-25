@@ -26,6 +26,8 @@ target_include_directories(
   mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(mqss_client PUBLIC  curl nlohmann_json rabbitmq)
+
+add_subdirectory(python)
 include(GNUInstallDirs)
 
 install(TARGETS mqss_client
