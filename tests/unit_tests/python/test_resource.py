@@ -46,17 +46,11 @@ def client(request):
     )
 
 
-# ---------------------------------------------------------------------
-# 1️⃣ ClientGetAllResources
-# ---------------------------------------------------------------------
 def test_client_get_all_resources(client):
     resources = client.resources
     assert len(resources) >= 0
 
 
-# ---------------------------------------------------------------------
-# 2️⃣ ClientGetAResource
-# ---------------------------------------------------------------------
 @pytest.mark.parametrize(
     "resource_name",
     ["QLM", "Q5", "Q20", "AQT20", "QExa20"],

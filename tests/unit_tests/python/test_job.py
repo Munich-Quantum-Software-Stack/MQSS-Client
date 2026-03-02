@@ -21,10 +21,6 @@ import pytest
 import os
 from mqss.client import CircuitJobRequest, HamiltonianJobRequest
 
-
-MQSS_API_URL = "https://portal.quantum.lrz.de:4000/v1/"
-
-
 MQSS_API_URL = "https://portal.quantum.lrz.de:4000/v1/"
 
 TEST_CIRCUIT = """
