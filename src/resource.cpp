@@ -1,4 +1,4 @@
-#include "mqss/Resource.h"
+#include "mqss/resource.h"
 #include <regex>
 
 using namespace mqss::client;

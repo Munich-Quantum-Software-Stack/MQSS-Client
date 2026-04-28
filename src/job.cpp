@@ -4,7 +4,7 @@ using namespace mqss::client;
 
 nlohmann::json CircuitJobRequest::toJson() const {
 
-  return {{"circuit", mCircuit},
+  return {{"circuit", {mCircuit}},
           {"circuit_format", mCircuitFormat},
           {"resource_name", mResourceName},
           {"shots", mShots},
@@ -47,7 +47,13 @@ JobResult::JobResult(std::map<std::string, unsigned int> results,
 JobResult::JobResult(const nlohmann::json &parsed) {
 
   const auto &rResultStr = parsed.at("result").get_ref<const std::string &>();
+
+  if(!nlohmann::json::accept(rResultStr))
+    return;
+
   nlohmann::json resultMap = nlohmann::json::parse(rResultStr);
+  if(resultMap.is_array())
+    resultMap = resultMap[0];
 
   for (auto &[key, value] : resultMap.items()) {
     resultMap[key] = value.get<unsigned int>();
