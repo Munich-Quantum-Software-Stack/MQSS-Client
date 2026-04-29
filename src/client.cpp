@@ -45,7 +45,6 @@ MQSSClient::getResourceInfo(const std::string &resource) const {
 std::optional<std::string> MQSSClient::submitJob(JobRequest &job) {
   std::string path = job.getPath();
   std::string result = mClient->post(path, job.toJson());
-
   if (result.empty() || !nlohmann::json::accept(result))
     return std::nullopt;
 
@@ -98,14 +97,14 @@ std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest &job,
 
   while (timeout > 0) {
     std::string status = getJobStatus(job);
-    if (status == "COMPLETED")
+    if (status == "COMPLETED" || status == "CANCELLED")
       break;
-    if (status == "FAILED" || status == "CANCELLED" || status.empty())
+    if (status == "FAILED" || status.empty())
       return nullptr;
     std::this_thread::sleep_for(std::chrono::seconds(poll_seconds));
     timeout -= poll_seconds;
   }
-  return getJobResult(job);
+  return timeout <= 0 ? nullptr : getJobResult(job);
 }
 
 int MQSSClient::getNumberPendingJobs(const std::string &resource) const {
