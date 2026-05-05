@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 ### How to Use this Documentation?
 
 This documentation includes helpful information about MQSS Client to decouple programming interfaces
-from quantum software stacks and help you use it
+from quantum software stacks and help you use it.
 
 #### General Information
 
@@ -40,7 +40,3 @@ The [FAQ](faq.md) page gives an overview over frequently asked questions.
 #### Hands-On
 
 The [Examples](examples.md) page provides a collection of examples to see MQSS Client in action.
-
-#### Want to Contribute?
-
-If you plan to contribute to MQSS Client, start with the [Contributing](contributing.md) page.

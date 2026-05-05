@@ -73,13 +73,13 @@ compiler.
 The code is publicly available and hosted on GitHub at
 [github.com/Munich-Quantum-Software-Stack/MQSS-Client](https://github.com/Munich-Quantum-Software-Stack/MQSS-Client).
 
-### Under which license is QDMI released?
+### Under which license is MQSS Client released?
 
 MQSS Client is released under the Apache License v2.0 with LLVM Exceptions. See
 [LICENSE](https://github.com/Munich-Quantum-Software-Stack/MQSS-Client/blob/develop/LICENSE.md) for
 more information. Any contribution to the project is assumed to be under the same license.
 
-### Why is it written in C++??
+### In which languages ​​can the MQSS Client be used?
 
 We use C++ to write the core of _MQSS Client_. With the provided Python bindings and C-API, _MQSS
 Client_ can be used with Python and C-based applications.

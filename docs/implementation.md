@@ -1,4 +1,4 @@
-# Examples
+# Design and Implementation
 
 <!-- IMPORTANT: Keep the line above as the first line. -->
 
@@ -75,7 +75,7 @@ auto client = MQSSClient(token, url_or_queue, isHPC);
 
 ---
 
-## Resource Interface Usage {#resource-interface-usage}
+## Resource Interface Usage
 
 The MQSS Client's resource interface dynamically abstracts the characteristics and capabilities of
 available quantum computation resources.
@@ -118,7 +118,7 @@ for (auto& resource : resources) {
 
 ---
 
-## Job Interface Usage {#job-interface-usage}
+## Job Interface Usage
 
 The MQSS Client's job interface encapsulates the logic for quantum task definition and execution.
 
