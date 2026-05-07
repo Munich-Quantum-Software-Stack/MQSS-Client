@@ -70,7 +70,7 @@ copyrights.
 
 ## Extractive Contributions {#extractive-contributions}
 
-Processing pull requests and comments for MQSS Client requires significant maintainer time and
+Processing pull requests and comments for **MQSS Client** requires significant maintainer time and
 energy. Sending unreviewed AI output to open-source projects shifts the burden of verifying
 correctness from the contributor to the maintainer. We classify such contributions as "extractive"
 because they consume more community resources than they provide in value.
@@ -95,8 +95,8 @@ code.
 
 ## Sustainable Open Source {#sustainable-open-source}
 
-MQSS Client is committed to remaining free, open-source, and permissively licensed. We want to build
-a welcoming community where aspiring quantum software engineers can learn and grow. Reviewing
+**MQSS Client** is committed to remaining free, open-source, and permissively licensed. We want to
+build a welcoming community where aspiring quantum software engineers can learn and grow. Reviewing
 contributions is a key part of this mentorship.
 
 However, to keep the project sustainable, we must prioritize non-extractive contributions. By

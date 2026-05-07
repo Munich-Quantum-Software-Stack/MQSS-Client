@@ -24,14 +24,14 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 <!-- Include the content of README.md between the pair of markers DOXYGEN FAQ. -->
 
-This page contains usage examples for the MQSS Client.
+This page contains usage examples for the **MQSS Client**.
 
 \tableofcontents
 
 ## MQSS Client Declaration
 
-Before using the MQSS Client, an instance needs to be created. The client can operate in two modes:
-HPC mode (using RabbitMQ) or remote API mode.
+Before using the **MQSS Client**, an instance needs to be created. The client can operate in two
+modes: HPC mode (using RabbitMQ) or remote API mode.
 
 ```cpp
 #include <mqss/client.h>
@@ -77,8 +77,8 @@ auto client = MQSSClient(token, url_or_queue, isHPC);
 
 ## Resource Interface Usage {#resource-interface-usage}
 
-The MQSS Client's resource interface dynamically abstracts the characteristics and capabilities of
-available quantum computation resources.
+The **MQSS Client**'s resource interface dynamically abstracts the characteristics and capabilities
+of available quantum computation resources.
 
 ### Available Methods
 
@@ -120,7 +120,8 @@ for (auto& resource : resources) {
 
 ## Job Interface Usage {#job-interface-usage}
 
-The MQSS Client's job interface encapsulates the logic for quantum task definition and execution.
+The **MQSS Client**'s job interface encapsulates the logic for quantum task definition and
+execution.
 
 ### Job Interface Components
 

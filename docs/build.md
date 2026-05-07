@@ -21,12 +21,13 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 <!-- This file is a static page and included in the CMakeLists.txt file. -->
 
-Ready to use and develop the _MQSS Client_? This guide will help you get started.
+Ready to use and develop the **MQSS Client**? This guide will help you get started.
 
 ## Initial Setup
 
-1. Fork the [MQSS Client](https://github.com/Munich-Quantum-Software-Stack/MQSS-Client) repository
-   on GitHub (see [Fork a Repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+1. Fork the [**MQSS Client**](https://github.com/Munich-Quantum-Software-Stack/MQSS-Client)
+   repository on GitHub (see
+   [Fork a Repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
 
 2. Clone your fork locally
 
@@ -53,7 +54,7 @@ Now you can make your changes locally.
 
 ## Prerequisites
 
-To build the _MQSS Client_, the following components are required.
+To build the **MQSS Client**, the following components are required.
 
 1. CMake, From Version 3.19 to 3.30.
 2. Compiler that supports C++-17 (Every version after Clang 5 and GCC 8).

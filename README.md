@@ -33,11 +33,12 @@ SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 <!-- [DOXYGEN MAIN] -->
 
 The **MQSS Client** is a unifying, context-aware access layer and programming library that separates
-programming interfaces from the underlying compiler and runtime stacks. The MQSS Client is
-integrated into the Munich Quantum Software Stack (MQSS) to pass quantum jobs to the underlying
+programming interfaces from the underlying compiler and runtime stacks. The **MQSS Client** is
+integrated into the _Munich Quantum Software Stack (MQSS)_ to pass quantum jobs to the underlying
 compiler infrastructure and query the properties of available quantum resources. It supports
-multiple programming models, such as gate-based circuits and Hamiltonians. The MQSS Client serves as
-an abstract layer between programming interfaces and the underlying compiler infrastructure.
+multiple programming models, such as gate-based circuits and Hamiltonians. The **MQSS Client**
+serves as an abstract layer between programming interfaces and the underlying compiler
+infrastructure.
 
 <!-- [DOXYGEN MAIN] -->
 
@@ -47,26 +48,26 @@ an abstract layer between programming interfaces and the underlying compiler inf
 
 ### What is MQSS?
 
-**MQSS** stands for _Munich Quantum Software Stack_ and is a project of the _Munich Quantum Valley
-(MQV)_ initiative. It is jointly developed by the _Leibniz Supercomputing Centre (LRZ)_, the _Chair
-for Design Automation (CDA)_, and the _Chair of Computer Architecture and Parallel Systems (CAPS)_
-at TUM. It provides a comprehensive compilation and runtime infrastructure for on-premise and remote
-quantum devices, support for modern compilation and optimization techniques, and enables both
-current and future high-level abstractions for quantum programming. This stack is designed to be
-capable of deployment in a variety of scenarios via flexible configuration options. This includes
-stand-alone scenarios for individual systems, cloud access to a variety of devices, as well as tight
-integration into HPC environments supporting quantum acceleration. Within the MQV, a concrete
-instance of the MQSS is deployed at the LRZ, serving as a single access point to all of its quantum
-devices via multiple compatible access paths. This includes a web portal, command line access via
-web credentials, as well as the option for hybrid access with tight integration with LRZ's HPC
-systems. It facilitates the connection between end-users and quantum computing platforms by its
-integration within HPC infrastructures, such as those found at the LRZ.
+_MQSS_ stands for _Munich Quantum Software Stack_ and is a project of the _Munich Quantum Valley_
+initiative. It is jointly developed by the _Munich Quantum Valley (MQV) gGmbH_, _Leibniz
+Supercomputing Centre (LRZ)_, the _Chair for Design Automation (CDA)_, and the _Chair of Computer
+Architecture and Parallel Systems (CAPS)_ at TUM. It provides a comprehensive compilation and
+runtime infrastructure for on-premise and remote quantum devices, support for modern compilation and
+optimization techniques, and enables both current and future high-level abstractions for quantum
+programming. This stack is designed to be capable of deployment in a variety of scenarios via
+flexible configuration options. This includes stand-alone scenarios for individual systems, cloud
+access to a variety of devices, as well as tight integration into HPC environments supporting
+quantum acceleration. Concrete instances of the _MQSS_ are deployed at the LRZ and MQV gGmbH,
+providing unified access to all of their quantum devices through multiple compatible access paths.
+This includes a web portal, command line access via web credentials, as well as the option for
+hybrid access with tight integration with HPC systems.It facilitates the connection between
+end-users and quantum computing platforms by its integration within HPC infrastructures, such as
+those found at the LRZ.
 
 ### What is the MQSS Client?
 
-**MQSS Client**, serves as an abstracting layer between programming interfaces and the underlying
-compiler, such as _MQSS_. The aim is to provide a standard way to communicate with the underlying
-compiler.
+The **MQSS Client** acts as an abstraction layer for the front-end programming interfaces of _MQSS_.
+Its purpose is to provide a unified interface for communication with the underlying middle-end.
 
 ### Where is the code?
 
@@ -75,21 +76,21 @@ The code is publicly available and hosted on GitHub at
 
 ### Under which license is MQSS Client released?
 
-MQSS Client is released under the Apache License v2.0 with LLVM Exceptions. See
+**MQSS Client** is released under the Apache License v2.0 with LLVM Exceptions. See
 [LICENSE](https://github.com/Munich-Quantum-Software-Stack/MQSS-Client/blob/develop/LICENSE.md) for
 more information. Any contribution to the project is assumed to be under the same license.
 
 ### In which languages ​​can the MQSS Client be used?
 
-We use C++ to write the core of _MQSS Client_. With the provided Python bindings and C-API, _MQSS
-Client_ can be used with Python and C-based applications.
+We use C++ to write the core of **MQSS Client**. With the provided Python bindings and C-API, **MQSS
+Client** can be used with Python and C-based applications.
 
 <!-- [DOXYGEN FAQ] -->
 
 ## 📬 Contact
 
-The development of this project is led by the QCT Department of the LRZ, a part of the Munich
-Quantum. Valley. You can also always reach us at
+The development of this project is led by the QCT department at the LRZ and the QSI department at
+MQV gGmbH. You can also always reach us at
 [mqss@munich-quantum-valley.de](mailto:mqss@munich-quantum-valley.de).
 
 Please try to use the publicly accessible GitHub channels

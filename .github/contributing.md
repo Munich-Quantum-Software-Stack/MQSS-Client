@@ -2,8 +2,8 @@
 
 <!-- [DOXYGEN] -->
 
-Thank you for your interest in contributing to MQSS Client. We value contributions from people with
-all levels of experience.
+Thank you for your interest in contributing to **MQSS Client**. We value contributions from people
+with all levels of experience.
 
 We use GitHub to [host code](https://github.com/Munich-Quantum-Software-Stack/MQSS Client), to
 [track issues and feature requests][issues], as well as accept [pull
@@ -17,9 +17,9 @@ Pick the path that fits your time and interests:
 
 - 🐛 Report bugs:
 
-  Use the _🐛 Bug report_ template at <https://github.com/Munich-Quantum-Software-Stack/MQSS
-  Client/issues>. Include steps to reproduce, expected vs. actual behavior, environment, and a
-  minimal example.
+  Use the _🐛 Bug report_ template at
+  <https://github.com/Munich-Quantum-Software-Stack/MQSS-Client/issues>. Include steps to reproduce,
+  expected vs. actual behavior, environment, and a minimal example.
 
 - 🛠️ Fix bugs:
 
@@ -28,9 +28,9 @@ Pick the path that fits your time and interests:
 
 - 💡 Propose features:
 
-  Use the _✨ Feature request_ template at <https://github.com/Munich-Quantum-Software-Stack/MQSS
-  Client/issues>. Describe the motivation, alternatives considered, and (optionally) a small API
-  sketch.
+  Use the _✨ Feature request_ template at
+  <https://github.com/Munich-Quantum-Software-Stack/MQSS-Client/issues>. Describe the motivation,
+  alternatives considered, and (optionally) a small API sketch.
 
 - ✨ Implement features:
 
@@ -54,7 +54,7 @@ Pick the path that fits your time and interests:
 - 🙌 Community support:
 
   Triage issues, reproduce reports, and answer questions in Discussions:
-  <https://github.com/Munich-Quantum-Software-Stack/MQSS Client/discussions>.
+  <https://github.com/Munich-Quantum-Software-Stack/MQSS-Client/discussions>.
 
 ## Guidelines {#guidelines}
 
