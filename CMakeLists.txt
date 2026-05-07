@@ -50,8 +50,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(cmake/ExternalDependencies.cmake)
+
 add_subdirectory(src)
 
-if(BUILD_UNIT_TESTS)
+if(BUILD_TESTS)
   add_subdirectory(tests)
+endif()
+
+if(BUILD_DOCUMENTATION)
+  add_subdirectory(docs)
 endif()
