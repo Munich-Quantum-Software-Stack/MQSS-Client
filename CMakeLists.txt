@@ -52,12 +52,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/ExternalDependencies.cmake)
 
-#add_subdirectory(src)
+add_subdirectory(src)
 
-#if(BUILD_UNIT_TESTS)
-#  add_subdirectory(tests)
-#endif()
+if(BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
 
-#if(BUILD_DOCUMENTATION)
+if(BUILD_DOCUMENTATION)
   add_subdirectory(docs)
-#endif()
+endif()
