@@ -1,5 +1,0 @@
-find_package(pybind11 REQUIRED)
-pybind11_add_module(mqss THIN_LTO OPT_SIZE bindings.cpp)
-target_include_directories(mqss PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(mqss PRIVATE mqss_client)
-set_target_properties(mqss PROPERTIES POSITION_INDEPENDENT_CODE ON)
