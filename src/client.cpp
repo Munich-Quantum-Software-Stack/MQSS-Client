@@ -1,14 +1,35 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
 #include "mqss/client.h"
+
 #include "clients/hpc_client.h"
 #include "clients/rest_client.h"
+
 #include <chrono>
 #include <optional>
 #include <thread>
 
 using namespace mqss::client;
 
-MQSSClient::MQSSClient(const std::string &token,
-                       const std::string &url_or_queue, bool is_hpc) {
+MQSSClient::MQSSClient(const std::string& token,
+                       const std::string& url_or_queue, bool is_hpc) {
   if (is_hpc) {
     mClient = std::make_unique<MQSSHPCClient>(token, url_or_queue);
   } else {
@@ -22,14 +43,14 @@ std::vector<Resource> MQSSClient::getAllResources() const {
   if (!nlohmann::json::accept(resp))
     return {};
   nlohmann::json parsed = nlohmann::json::parse(resp);
-  for (auto &item : parsed) {
+  for (auto& item : parsed) {
     Resources.push_back(Resource(item));
   }
   return Resources;
 }
 
 std::optional<Resource>
-MQSSClient::getResourceInfo(const std::string &resource) const {
+MQSSClient::getResourceInfo(const std::string& resource) const {
   std::string resp = mClient->get("resources/" + resource);
   if (resp.find("RESOURCE NOT FOUND") != std::string::npos)
     return std::nullopt;
@@ -42,7 +63,7 @@ MQSSClient::getResourceInfo(const std::string &resource) const {
     return std::nullopt;
   return Resource(parsed);
 }
-std::optional<std::string> MQSSClient::submitJob(JobRequest &job) {
+std::optional<std::string> MQSSClient::submitJob(JobRequest& job) {
   std::string path = job.getPath();
   std::string result = mClient->post(path, job.toJson());
   if (result.empty() || !nlohmann::json::accept(result))
@@ -57,12 +78,12 @@ std::optional<std::string> MQSSClient::submitJob(JobRequest &job) {
   return uuid;
 }
 
-void MQSSClient::cancelJob(JobRequest &job) {
+void MQSSClient::cancelJob(JobRequest& job) {
   std::string path = job.getPath() + "/" + job.getUuid();
   mClient->del(path);
 }
 
-std::string MQSSClient::getJobStatus(const JobRequest &job) {
+std::string MQSSClient::getJobStatus(const JobRequest& job) {
   std::string path = job.getPath() + "/" + job.getUuid() + "/status";
   std::string resp = mClient->get(path);
   if (resp.empty())
@@ -75,7 +96,7 @@ std::string MQSSClient::getJobStatus(const JobRequest &job) {
   return parsed.value("status", "");
 }
 
-std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest &job,
+std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest& job,
                                                     bool wait, size_t timeout) {
 
   if (wait) {
@@ -91,7 +112,7 @@ std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest &job,
   return std::make_unique<JobResult>(JobResult(parsed));
 }
 
-std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest &job,
+std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest& job,
                                                         size_t timeout) {
   size_t poll_seconds = 2;
 
@@ -107,7 +128,7 @@ std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest &job,
   return timeout <= 0 ? nullptr : getJobResult(job);
 }
 
-int MQSSClient::getNumberPendingJobs(const std::string &resource) const {
+int MQSSClient::getNumberPendingJobs(const std::string& resource) const {
   std::string resp =
       mClient->get("resources/" + resource + "/num_pending_jobs");
   if (resp.empty() || !nlohmann::json::accept(resp))

@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
+#include <nlohmann/json.hpp>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <nlohmann/json.hpp>
 
 namespace mqss::client {
 class JobRequest {
@@ -15,7 +33,7 @@ public:
   virtual nlohmann::json toJson() const = 0;
   virtual std::string getPath() const = 0;
   std::string getUuid() const { return mUuid; }
-  void setUuid(const std::string &uuid) { mUuid = uuid; }
+  void setUuid(const std::string& uuid) { mUuid = uuid; }
 };
 
 class CircuitJobRequest : public JobRequest {
@@ -28,7 +46,7 @@ private:
   bool mQueued;
 
 public:
-  CircuitJobRequest(){};
+  CircuitJobRequest() {};
 
   CircuitJobRequest(std::string circuit, std::string circuitFormat,
                     std::string resourceName, unsigned int shots, bool noModify,
@@ -40,7 +58,7 @@ public:
     mCircuitFormat = circuitFormat;
   }
   std::string getCircuitFormat() const { return mCircuitFormat; }
-  void setResourceName(const std::string &resourceName) {
+  void setResourceName(const std::string& resourceName) {
     mResourceName = resourceName;
   }
   std::string getResourceName() const { return mResourceName; }
@@ -66,7 +84,7 @@ public:
   HamiltonianJobRequest(std::string resourceName, std::string interactionStr,
                         std::string coefficientsStr);
 
-  HamiltonianJobRequest(){};
+  HamiltonianJobRequest() {};
 
   void setResourceName(std::string resourceName) {
     mResourceName = resourceName;
@@ -100,7 +118,7 @@ public:
             std::string timestampCompleted, std::string timestampSubmitted,
             std::string timestampScheduled);
 
-  JobResult(const nlohmann::json &parsed);
+  JobResult(const nlohmann::json& parsed);
 
   std::map<std::string, unsigned int> getResults() const { return mResults; }
   std::string getTimestampCompleted() const { return mTimestampCompleted; }

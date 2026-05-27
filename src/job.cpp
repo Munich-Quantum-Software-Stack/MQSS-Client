@@ -1,15 +1,31 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
 #include "mqss/job.h"
 
 using namespace mqss::client;
 
 nlohmann::json CircuitJobRequest::toJson() const {
 
-  return {{"circuit", {mCircuit}},
-          {"circuit_format", mCircuitFormat},
-          {"resource_name", mResourceName},
-          {"shots", mShots},
-          {"no_modify", mNoModify},
-          {"queued", mQueued}};
+  return {{"circuit", {mCircuit}},          {"circuit_format", mCircuitFormat},
+          {"resource_name", mResourceName}, {"shots", mShots},
+          {"no_modify", mNoModify},         {"queued", mQueued}};
 }
 
 CircuitJobRequest::CircuitJobRequest(std::string circuit,
@@ -44,18 +60,18 @@ JobResult::JobResult(std::map<std::string, unsigned int> results,
       mTimestampSubmitted(std::move(timestampSubmitted)),
       mTimestampScheduled(std::move(timestampScheduled)) {}
 
-JobResult::JobResult(const nlohmann::json &parsed) {
+JobResult::JobResult(const nlohmann::json& parsed) {
 
-  const auto &rResultStr = parsed.at("result").get_ref<const std::string &>();
+  const auto& rResultStr = parsed.at("result").get_ref<const std::string&>();
 
-  if(!nlohmann::json::accept(rResultStr))
+  if (!nlohmann::json::accept(rResultStr))
     return;
 
   nlohmann::json resultMap = nlohmann::json::parse(rResultStr);
-  if(resultMap.is_array())
+  if (resultMap.is_array())
     resultMap = resultMap[0];
 
-  for (auto &[key, value] : resultMap.items()) {
+  for (auto& [key, value] : resultMap.items()) {
     resultMap[key] = value.get<unsigned int>();
   }
 

@@ -1,22 +1,40 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
 
 #include "rest_client.h"
 
 typedef struct MQSSRestResponse_d {
-  char *pResponse;
+  char* pResponse;
   size_t mSize;
 } MQSSRestResponse;
 
-static size_t writeCallback(char *data, size_t size, size_t nmemb,
-                            void *clientp) {
+static size_t writeCallback(char* data, size_t size, size_t nmemb,
+                            void* clientp) {
   size_t realsize = size * nmemb;
-  MQSSRestResponse *pResponse = (MQSSRestResponse *)clientp;
-  char *pTempResponse =
-      (char *)realloc(pResponse->pResponse, pResponse->mSize + realsize + 1);
+  MQSSRestResponse* pResponse = (MQSSRestResponse*)clientp;
+  char* pTempResponse =
+      (char*)realloc(pResponse->pResponse, pResponse->mSize + realsize + 1);
   if (!pTempResponse)
     return 0;
 
   pResponse->pResponse = pTempResponse;
-  void *dest =
+  void* dest =
       memcpy(&(pResponse->pResponse[pResponse->mSize]), data, realsize);
   if (dest == NULL)
     fprintf(stderr, "Memory error");
@@ -34,14 +52,14 @@ MQSSRestClient::MQSSRestClient(std::string token, std::string url)
   pHeaders = curl_slist_append(pHeaders, "Content-Type: application/json");
 }
 
-std::string MQSSRestClient::get(const std::string &path) {
-  CURL *curl = curl_easy_init();
+std::string MQSSRestClient::get(const std::string& path) {
+  CURL* curl = curl_easy_init();
   if (!curl)
     return "1";
 
   MQSSRestResponse response = {0};
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
   curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
 
@@ -56,10 +74,10 @@ std::string MQSSRestClient::get(const std::string &path) {
   return result;
 }
 
-std::string MQSSRestClient::post(const std::string &path,
-                                 const nlohmann::json &data) {
+std::string MQSSRestClient::post(const std::string& path,
+                                 const nlohmann::json& data) {
 
-  CURL *curl = curl_easy_init();
+  CURL* curl = curl_easy_init();
   if (!curl)
     return "";
 
@@ -84,9 +102,9 @@ std::string MQSSRestClient::post(const std::string &path,
   return result;
 }
 
-void MQSSRestClient::del(const std::string &path) {
+void MQSSRestClient::del(const std::string& path) {
 
-  CURL *curl = curl_easy_init();
+  CURL* curl = curl_easy_init();
   if (!curl)
     return;
   long response_code;
@@ -94,7 +112,7 @@ void MQSSRestClient::del(const std::string &path) {
 
   curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
   curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);

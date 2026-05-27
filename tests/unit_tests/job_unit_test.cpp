@@ -1,22 +1,24 @@
-/*------------------------------------------------------------------------------
-Copyright 2024 Munich Quantum Software Stack Project
-
-Licensed under the Apache License, Version 2.0 with LLVM Exceptions (the
-"License"); you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-https://github.com/Munich-Quantum-Software-Stack/QDMI/blob/develop/LICENSE
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT>
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations under
-the License.
-
-SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-------------------------------------------------------------------------------*/
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
 
 #include "mqss/client.h"
+
 #include "gtest/gtest.h"
 #include <cstdlib>
 #include <gtest/gtest.h>
@@ -38,7 +40,7 @@ struct ClientCtorParam {
 class MQSSClientJobTest : public ::testing::TestWithParam<ClientCtorParam> {
 protected:
   void SetUp() override {
-    const auto &p = GetParam();
+    const auto& p = GetParam();
 
     client = mqss::client::MQSSClient{p.token, p.url_or_queue, p.isHPC};
   }
@@ -52,7 +54,6 @@ INSTANTIATE_TEST_SUITE_P(MQSS_Test_Instantiation, MQSSClientJobTest,
                              ClientCtorParam{"", MQSS_HPC_QUEUENAME, true},
                              ClientCtorParam{MQSS_API_TOKEN, MQSS_API_URL,
                                              false}));
-
 
 static const std::string TEST_CIRCUIT = R"(
 OPENQASM 2.0;
@@ -160,7 +161,7 @@ TEST_P(MQSSClientJobTest, ClientGetNumPendingJobs) {
   ASSERT_GE(n_job, 0);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
