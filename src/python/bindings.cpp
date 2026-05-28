@@ -58,6 +58,12 @@ PYBIND11_MODULE(mqss, m) {
       .def_property_readonly("native_gateset",
                              &mqss::client::Resource::getNativeGateset);
 
+  py::class_<mqss::client::Gate>(m, "Gate")
+      .def_property_readonly("name", &mqss::client::Gate::getName)
+      .def_property_readonly("arity", &mqss::client::Gate::getArity)
+      .def_property_readonly("supported_qubits",
+                             &mqss::client::Gate::getSupportedQubits);
+
   py::class_<mqss::client::JobRequest>(m, "JobRequest").doc();
 
   py::class_<mqss::client::CircuitJobRequest, mqss::client::JobRequest>(
