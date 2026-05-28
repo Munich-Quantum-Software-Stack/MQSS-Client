@@ -1,20 +1,21 @@
-/*------------------------------------------------------------------------------
-Copyright 2024 Munich Quantum Software Stack Project
-
-Licensed under the Apache License, Version 2.0 with LLVM Exceptions (the
-"License"); you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-https://github.com/Munich-Quantum-Software-Stack/QDMI/blob/develop/LICENSE
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations under
-the License.
-
-SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-------------------------------------------------------------------------------*/
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
 
 #include "mqss/client.h"
 
@@ -30,7 +31,7 @@ PYBIND11_MODULE(mqss, m) {
   py::module_ clientModule = m.def_submodule("client", "Submodule Client");
 
   py::class_<mqss::client::MQSSClient>(clientModule, "MQSSClient")
-      .def(py::init<const std::string &, const std::string &, bool>(),
+      .def(py::init<const std::string&, const std::string&, bool>(),
            py::arg("token") = "", py::arg("url_or_queue") = MQP_DEFAULT_URL,
            py::arg("is_hpc") = false)
       .def_property_readonly("resources",
@@ -62,7 +63,7 @@ PYBIND11_MODULE(mqss, m) {
   py::class_<mqss::client::CircuitJobRequest, mqss::client::JobRequest>(
       clientModule, "CircuitJobRequest")
       .def(py::init<>())
-      .def(py::init<std::string &, std::string &, std::string &, unsigned int,
+      .def(py::init<std::string&, std::string&, std::string&, unsigned int,
                     bool, bool>(),
            py::arg("circuit"), py::arg("circuit_format"),
            py::arg("resource_name"), py::arg("shots"), py::arg("no_modify"),
@@ -85,7 +86,7 @@ PYBIND11_MODULE(mqss, m) {
   py::class_<mqss::client::HamiltonianJobRequest, mqss::client::JobRequest>(
       clientModule, "HamiltonianJobRequest")
       .def(py::init<>())
-      .def(py::init<std::string &, std::string &, std::string &>(),
+      .def(py::init<std::string&, std::string&, std::string&>(),
            py::arg("resource_name"), py::arg("interaction"),
            py::arg("coefficients"))
       .def_property("resource_name",

@@ -1,9 +1,27 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
 #pragma once
 
+#include <algorithm>
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
-
-#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -11,7 +29,7 @@ class MQSSRabbitMQClient {
 
 private:
   amqp_connection_state_t mConnection;
-  amqp_socket_t *mpSocket;
+  amqp_socket_t* mpSocket;
 
   std::string mHostname;
   std::string mUser;
@@ -20,11 +38,10 @@ private:
   std::vector<std::string> mQueues;
 
 public:
-  MQSSRabbitMQClient(std::string user = "guest",
-                       std::string password = "guest",
-                       std::string hostname = "host.docker.internal",
-                       int port = 5672)
-      : mUser(user), mPassword(password), mHostname(hostname), mPort(port){};
+  MQSSRabbitMQClient(std::string user = "guest", std::string password = "guest",
+                     std::string hostname = "host.docker.internal",
+                     int port = 5672)
+      : mUser(user), mPassword(password), mHostname(hostname), mPort(port) {};
 
   ~MQSSRabbitMQClient() { disconnect(); }
 

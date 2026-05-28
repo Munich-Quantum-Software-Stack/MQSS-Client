@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2024 - 2026 MQSS Project
+ * All rights reserved.
+ *
+ * Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://llvm.org/LICENSE.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ */
+
 #include "hpc_client.h"
 
 inline std::string getHostName() {
@@ -5,7 +24,7 @@ inline std::string getHostName() {
   if (max_hostname_size == -1) {
     max_hostname_size = 256;
   }
-  char *hostname = new char[max_hostname_size];
+  char* hostname = new char[max_hostname_size];
   if (gethostname(hostname, max_hostname_size) == 0) {
     std::string result(hostname);
     delete[] hostname;
@@ -33,7 +52,7 @@ MQSSHPCClient::MQSSHPCClient(std::string token,
   mRabbitmqClient.declareQueue(mResponseQueueName);
 }
 
-std::string MQSSHPCClient::get(const std::string &path) {
+std::string MQSSHPCClient::get(const std::string& path) {
   std::string request, response;
   nlohmann::json request_json = {
       {"authorization", ""},
@@ -49,8 +68,8 @@ std::string MQSSHPCClient::get(const std::string &path) {
   return response;
 }
 
-std::string MQSSHPCClient::post(const std::string &path,
-                                const nlohmann::json &data) {
+std::string MQSSHPCClient::post(const std::string& path,
+                                const nlohmann::json& data) {
   nlohmann::json request_json = {
       {"authorization", ""},
       {"method", "POST"},
@@ -65,7 +84,7 @@ std::string MQSSHPCClient::post(const std::string &path,
   return response;
 }
 
-void MQSSHPCClient::del(const std::string &path) {
+void MQSSHPCClient::del(const std::string& path) {
   std::string request, response;
   mRabbitmqClient.send(mOffloadListenerQueueName, request);
   response = mRabbitmqClient.receive(mResponseQueueName);

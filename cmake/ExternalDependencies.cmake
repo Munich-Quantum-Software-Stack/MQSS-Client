@@ -1,11 +1,27 @@
+# Copyright (c) 2024 - 2026 MQSS Project
+# All rights reserved.
+#
+# Licensed under the Apache License v2.0 with LLVM Exceptions (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://llvm.org/LICENSE.txt
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
 include(FetchContent)
 set(FETCH_PACKAGES "")
 
-#if(BUILD_DOCUMENTATION)
+if(BUILD_DOCUMENTATION)
   set(CMAKE_POLICY_DEFAULT_CMP0116
       NEW
-      CACHE STRING
-            "Set the default CMP0116 policy to NEW for documentation builds")
+      CACHE STRING "Set the default CMP0116 policy to NEW for documentation builds")
   set(DOXYGEN_VERSION
       1.15.0
       CACHE STRING "Doxygen version")
@@ -31,7 +47,7 @@ set(FETCH_PACKAGES "")
     GIT_TAG ${DOXYGEN_AWESOME_REV}
     FIND_PACKAGE_ARGS ${DOXYGEN_AWESOME_VERSION})
   list(APPEND FETCH_PACKAGES doxygen-awesome-css)
-#endif()
+endif()
 
 if(FETCH_PACKAGES)
   FetchContent_MakeAvailable(${FETCH_PACKAGES})
