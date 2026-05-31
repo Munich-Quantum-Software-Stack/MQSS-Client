@@ -15,22 +15,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-find_package(CURL REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(rabbitmq-c REQUIRED)
-
-file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
-
-add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
-
-target_include_directories(mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(mqss_client PUBLIC curl nlohmann_json rabbitmq)
-
-include(GNUInstallDirs)
-
-install(
-  TARGETS mqss_client
-  DESTINATION .
-  COMPONENT mqss_client_bindings)
-
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+from .PyMQSSClient import MQSSClient, CircuitJobRequest, HamiltonianJobRequest, JobResult, Resource, Gate

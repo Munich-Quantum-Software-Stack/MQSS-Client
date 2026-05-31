@@ -29,8 +29,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     ON
     CACHE BOOL "Export compile commands" FORCE)
 
-option(BUILD_UNIT_TESTS "Build the unit tests" ON)
-option(ENABLE_COVERAGE "Enabling coverage" ON)
+option(BUILD_TESTS "Build the tests" OFF)
+option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
+option(ENABLE_COVERAGE "Enabling coverage" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -57,4 +58,8 @@ endif()
 
 if(BUILD_DOCUMENTATION)
   add_subdirectory(docs)
+endif()
+
+if(BUILD_BINDINGS)
+  add_subdirectory(bindings)
 endif()
