@@ -108,19 +108,21 @@ public:
 
 class JobResult {
 
-  std::map<std::string, unsigned int> mResults;
+  std::vector<std::map<std::string, unsigned int>> mResults;
   std::string mTimestampCompleted;
   std::string mTimestampSubmitted;
   std::string mTimestampScheduled;
 
 public:
-  JobResult(std::map<std::string, unsigned int> results,
+  JobResult(std::vector<std::map<std::string, unsigned int>> results,
             std::string timestampCompleted, std::string timestampSubmitted,
             std::string timestampScheduled);
 
   JobResult(const nlohmann::json& parsed);
 
-  std::map<std::string, unsigned int> getResults() const { return mResults; }
+  std::vector<std::map<std::string, unsigned int>> getResults() const {
+    return mResults;
+  }
   std::string getTimestampCompleted() const { return mTimestampCompleted; }
   std::string getTimestampSubmitted() const { return mTimestampSubmitted; }
   std::string getTimestampScheduled() const { return mTimestampScheduled; }

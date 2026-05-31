@@ -22,11 +22,35 @@
 #include <utility>
 #include <vector>
 namespace mqss::client {
+
+class Gate {
+
+public:
+  Gate(std::string name, unsigned int arity,
+       std::vector<std::vector<unsigned int>> supportedQubits)
+      : mName(std::move(name)), mArity(arity),
+        mSupportedQubits(std::move(supportedQubits)) {}
+
+  const std::string& getName() const noexcept { return mName; }
+
+  const unsigned int& getArity() const noexcept { return mArity; }
+
+  const std::vector<std::vector<unsigned int>>&
+  getSupportedQubits() const noexcept {
+    return mSupportedQubits;
+  }
+
+private:
+  std::string mName;
+  unsigned int mArity;
+  std::vector<std::vector<unsigned int>> mSupportedQubits;
+};
+
 class Resource {
 public:
   Resource(std::string name, unsigned qubitCount, bool online,
-           std::vector<std::pair<int, int>> couplingMap,
-           std::vector<std::string> nativeGateset);
+           std::vector<std::vector<int>> couplingMap,
+           std::vector<Gate> nativeGateset);
 
   Resource(const nlohmann::json& json);
 
@@ -34,11 +58,11 @@ public:
   unsigned getQubitCount() const noexcept { return mQubitCount; }
   bool isOnline() const noexcept { return mOnline; }
 
-  const std::vector<std::pair<int, int>>& getCouplingMap() const noexcept {
+  const std::vector<std::vector<int>>& getCouplingMap() const noexcept {
     return mCouplingMap;
   }
 
-  const std::vector<std::string>& getNativeGateset() const noexcept {
+  const std::vector<Gate>& getNativeGateset() const noexcept {
     return mNativeGateset;
   }
 
@@ -46,7 +70,8 @@ private:
   std::string mName;
   unsigned mQubitCount;
   bool mOnline;
-  std::vector<std::pair<int, int>> mCouplingMap;
-  std::vector<std::string> mNativeGateset;
+  std::vector<std::vector<int>> mCouplingMap;
+  std::vector<Gate> mNativeGateset;
 };
+
 } // namespace mqss::client

@@ -15,8 +15,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 find_package(pybind11 REQUIRED)
-pybind11_add_module(mqss THIN_LTO OPT_SIZE bindings.cpp)
-target_include_directories(mqss PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(mqss PRIVATE mqss_client)
-set_target_properties(mqss PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+set(MQSS_PYTHON_MODULE_NAME PyMQSSClient)
+
+file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
+
+pybind11_add_module(${MQSS_PYTHON_MODULE_NAME} MODULE ${MQSS_CLIENT_SOURCES})
+
+target_include_directories(${MQSS_PYTHON_MODULE_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include
+                                                              ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(${MQSS_PYTHON_MODULE_NAME} PRIVATE mqss_client)
+
+set_target_properties(${MQSS_PYTHON_MODULE_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(
+  TARGETS ${MQSS_PYTHON_MODULE_NAME}
+  DESTINATION .
+  COMPONENT mqss_client_bindings)

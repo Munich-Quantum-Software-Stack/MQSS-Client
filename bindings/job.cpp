@@ -17,51 +17,15 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
-#include "mqss/client.h"
+#include "mqss/job.h"
 
-#include <pybind11/cast.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include "bindings.h"
 
-namespace py = pybind11;
-
-PYBIND11_MODULE(mqss, m) {
-  m.doc() = "Python bindings for the MQSS client";
-
-  py::module_ clientModule = m.def_submodule("client", "Submodule Client");
-
-  py::class_<mqss::client::MQSSClient>(clientModule, "MQSSClient")
-      .def(py::init<const std::string&, const std::string&, bool>(),
-           py::arg("token") = "", py::arg("url_or_queue") = MQP_DEFAULT_URL,
-           py::arg("is_hpc") = false)
-      .def_property_readonly("resources",
-                             &mqss::client::MQSSClient::getAllResources)
-      .def("resource", &mqss::client::MQSSClient::getResourceInfo,
-           py::arg("resource"))
-      .def("submit_job", &mqss::client::MQSSClient::submitJob,
-           py::arg("job_request"))
-      .def("cancel_job", &mqss::client::MQSSClient::cancelJob, py::arg("job"))
-      .def("job_status", &mqss::client::MQSSClient::getJobStatus,
-           py::arg("job"))
-      .def("job_results", &mqss::client::MQSSClient::getJobResult,
-           py::arg("job"), py::arg("wait") = false, py::arg("timeout") = 100)
-      .def("pending_job_count", &mqss::client::MQSSClient::getNumberPendingJobs,
-           py::arg("resource"));
-
-  py::class_<mqss::client::Resource>(clientModule, "Resource")
-      .def_property_readonly("name", &mqss::client::Resource::getName)
-      .def_property_readonly("qubit_count",
-                             &mqss::client::Resource::getQubitCount)
-      .def_property_readonly("online", &mqss::client::Resource::isOnline)
-      .def_property_readonly("coupling_map",
-                             &mqss::client::Resource::getCouplingMap)
-      .def_property_readonly("native_gateset",
-                             &mqss::client::Resource::getNativeGateset);
-
+void registerJobInterface(const py::module& m) {
   py::class_<mqss::client::JobRequest>(m, "JobRequest").doc();
 
   py::class_<mqss::client::CircuitJobRequest, mqss::client::JobRequest>(
-      clientModule, "CircuitJobRequest")
+      m, "CircuitJobRequest")
       .def(py::init<>())
       .def(py::init<std::string&, std::string&, std::string&, unsigned int,
                     bool, bool>(),
@@ -84,7 +48,7 @@ PYBIND11_MODULE(mqss, m) {
                     &mqss::client::CircuitJobRequest::setQueued);
 
   py::class_<mqss::client::HamiltonianJobRequest, mqss::client::JobRequest>(
-      clientModule, "HamiltonianJobRequest")
+      m, "HamiltonianJobRequest")
       .def(py::init<>())
       .def(py::init<std::string&, std::string&, std::string&>(),
            py::arg("resource_name"), py::arg("interaction"),
@@ -100,7 +64,7 @@ PYBIND11_MODULE(mqss, m) {
           &mqss::client::HamiltonianJobRequest::getCoefficientsString,
           &mqss::client::HamiltonianJobRequest::setCoefficientsString);
 
-  py::class_<mqss::client::JobResult>(clientModule, "JobResult")
+  py::class_<mqss::client::JobResult>(m, "JobResult")
       .def_property_readonly("results", &mqss::client::JobResult::getResults)
       .def_property_readonly("completion_timestamp",
                              &mqss::client::JobResult::getTimestampCompleted)
