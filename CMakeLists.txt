@@ -31,6 +31,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
 
 option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
+option(BUILD_INTEGRATION_TESTS "Build the unit tests" OFF)
 option(ENABLE_COVERAGE "Enabling coverage" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -50,9 +51,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/ExternalDependencies.cmake)
 
+if(BUILD_TESTS OR BUILD_UNIT_TESTS)
+  add_compile_definitions(ENABLE_UNIT_TEST)
+endif()
+
 add_subdirectory(src)
 
-if(BUILD_TESTS)
+if(BUILD_TESTS
+   OR BUILD_UNIT_TESTS
+   OR BUILD_INTEGRATION_TESTS)
   add_subdirectory(tests)
 endif()
 
