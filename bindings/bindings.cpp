@@ -21,7 +21,7 @@
 
 PYBIND11_MODULE(PyMQSSClient, m) {
   m.doc() = "Python bindings for the MQSS client";
-  registerClientInterface(m);
-  registerJobInterface(m);
   registerResourceInterface(m);
+  registerJobInterface(m);
+  registerClientInterface(m);
 }
