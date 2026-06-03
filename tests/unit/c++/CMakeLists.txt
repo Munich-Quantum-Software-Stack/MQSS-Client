@@ -15,25 +15,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-enable_testing()
-include(GoogleTest)
-
-function(add_test test_name)
-  add_executable(${test_name} ${test_name}.cpp)
-
-  target_link_libraries(${test_name} PRIVATE gmock gtest gtest_main mqss_client)
-
-  if(ENABLE_COVERAGE)
-    target_link_libraries(${test_name} PRIVATE coverage_flags)
-  endif()
-
-  gtest_discover_tests(${test_name})
-endfunction()
-
-if(BUILD_TESTS OR BUILD_UNIT_TESTS)
-  add_subdirectory(unit/c++)
-endif()
-
-if(BUILD_TESTS OR BUILD_INTEGRATION_TESTS)
-  add_subdirectory(integration/c++)
-endif()
+add_test(job_unit_test)
+add_test(resource_unit_test)

@@ -37,8 +37,11 @@ option(ENABLE_COVERAGE "Enabling coverage" OFF)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 if(ENABLE_COVERAGE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -g")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0 -g")
+  add_library(coverage_flags INTERFACE)
+
+  target_compile_options(coverage_flags INTERFACE --coverage -fprofile-arcs -ftest-coverage -O0)
+
+  target_link_options(coverage_flags INTERFACE --coverage)
 endif()
 
 set(CMAKE_C_STANDARD 11)
