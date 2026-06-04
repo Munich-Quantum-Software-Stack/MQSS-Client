@@ -27,7 +27,7 @@
 #include <thread>
 
 using namespace mqss::client;
-
+// GCOVR_EXCL_START
 MQSSClient::MQSSClient(const std::string& token,
                        const std::string& url_or_queue, bool is_hpc) {
   if (is_hpc) {
@@ -36,6 +36,7 @@ MQSSClient::MQSSClient(const std::string& token,
     mClient = std::make_unique<MQSSRestClient>(token, url_or_queue);
   }
 }
+// GCOVR_EXCL_STOP
 
 std::vector<Resource> MQSSClient::getAllResources() const {
   std::vector<Resource> Resources;

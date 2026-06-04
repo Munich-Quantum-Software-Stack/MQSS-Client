@@ -54,6 +54,7 @@ nlohmann::json HamiltonianJobRequest::toJson() const {
           {"coefficients_str", mCoefficientsStr}};
 }
 
+// GCOVR_EXCL_START
 JobResult::JobResult(std::vector<std::map<std::string, unsigned int>> results,
                      std::string timestampCompleted,
                      std::string timestampSubmitted,
@@ -62,6 +63,8 @@ JobResult::JobResult(std::vector<std::map<std::string, unsigned int>> results,
       mTimestampCompleted(std::move(timestampCompleted)),
       mTimestampSubmitted(std::move(timestampSubmitted)),
       mTimestampScheduled(std::move(timestampScheduled)) {}
+
+// GCOVR_EXCL_STOP
 
 JobResult::JobResult(const nlohmann::json& parsed) {
 

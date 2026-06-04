@@ -63,8 +63,7 @@ std::vector<Gate> extractGates(const nlohmann::json& response,
   const std::string& text = it->get_ref<const std::string&>();
   if (text == "None")
     return result;
-  std::regex gateRegex(R"(\(\s*'([^']+)'\s*,\s*\{([^}]*)\}\s*\))");
-
+  std::regex gateRegex(R"(\(\s*['"]([^'"]+)['"]\s*,\s*(\{[^{}]*\})\s*\))");
   auto gateBegin = std::sregex_iterator(text.begin(), text.end(), gateRegex);
   auto gateEnd = std::sregex_iterator();
   std::string GateName;
@@ -126,7 +125,7 @@ Resource::Resource(const nlohmann::json& json) {
   std::vector<std::vector<int>> couplingMap =
       extractCouplingMap(json, "connectivity");
 
-  std::vector<Gate> nativeGateset = extractGates(json, "Gates");
+  std::vector<Gate> nativeGateset = extractGates(json, "instructions");
 
   mName = std::move(name);
   mQubitCount = qubitCount;

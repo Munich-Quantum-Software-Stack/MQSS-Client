@@ -49,10 +49,17 @@ private:
   std::unique_ptr<JobResult> waitForJobResult(const JobRequest& job,
                                               size_t poll_seconds);
 
+  std::unique_ptr<MQSSBaseClient> mClient;
+
 public:
   MQSSClient(const std::string& token = "",
              const std::string& url_or_queue = MQP_DEFAULT_URL,
              bool is_hpc = false);
+
+#ifdef ENABLE_UNIT_TEST
+  explicit MQSSClient(std::unique_ptr<MQSSBaseClient> client)
+      : mClient(std::move(client)) {}
+#endif
 
   // Resources
   std::vector<Resource> getAllResources() const;
@@ -64,11 +71,7 @@ public:
   std::string getJobStatus(const JobRequest& job);
   std::unique_ptr<JobResult>
   getJobResult(const JobRequest& job, bool wait = false, size_t timeout = 100);
-
   int getNumberPendingJobs(const std::string& resource) const;
-
-private:
-  std::unique_ptr<MQSSBaseClient> mClient;
 };
 
 } // namespace mqss::client
