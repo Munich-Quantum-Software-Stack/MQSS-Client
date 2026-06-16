@@ -34,7 +34,8 @@ void registerResourceInterface(const py::module& m) {
 
   py::class_<mqss::client::Gate>(m, "Gate")
       .def_property_readonly("name", &mqss::client::Gate::getName)
-      .def_property_readonly("arity", &mqss::client::Gate::getArity)
+      .def_property_readonly("qubit_number", &mqss::client::Gate::getQubitNumber)
+      .def_property_readonly("parameter_number", &mqss::client::Gate::getParameterNumber)
       .def_property_readonly("supported_qubits",
                              &mqss::client::Gate::getSupportedQubits);
 }
