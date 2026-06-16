@@ -56,10 +56,8 @@ public:
              const std::string& url_or_queue = MQP_DEFAULT_URL,
              bool is_hpc = false);
 
-#ifdef ENABLE_UNIT_TEST
   explicit MQSSClient(std::unique_ptr<MQSSBaseClient> client)
       : mClient(std::move(client)) {}
-#endif
 
   // Resources
   std::vector<Resource> getAllResources() const;
