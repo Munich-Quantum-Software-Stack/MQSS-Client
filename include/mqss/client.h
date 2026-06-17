@@ -32,6 +32,14 @@
 
 #define MQP_DEFAULT_URL "https://portal.quantum.lrz.de:4000/v1/"
 
+template <typename T, typename RefT> inline T* unwrap(RefT ref) {
+  return reinterpret_cast<T*>(ref);
+}
+
+template <typename RefT, typename T> inline RefT wrap(T* ptr) {
+  return reinterpret_cast<RefT>(ptr);
+}
+
 namespace mqss::client {
 
 class MQSSBaseClient {

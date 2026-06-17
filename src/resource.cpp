@@ -19,6 +19,8 @@
 
 #include "mqss/resource.h"
 
+#include "mqss-c/resource.h"
+#include "mqss/client.h"
 #include <regex>
 
 using namespace mqss::client;
@@ -169,4 +171,37 @@ Resource::Resource(const nlohmann::json& json) {
   mOnline = online;
   mCouplingMap = std::move(couplingMap);
   mNativeGateset = std::move(nativeGateset);
+}
+
+int mqssClientResourceGetInfo(MQSSResourceRef resource, char** name,
+                              unsigned* qubitCount, bool* online,
+                              int** couplingMap, MQSSGateRef** nativeGateset,
+                              unsigned int* gateCount) {
+  auto* resource_ = unwrap<Resource>(resource);
+  if (resource_ == nullptr)
+    return -2;
+
+  // Name
+  if (asprintf(name, "%s", resource_->getName().c_str()) < 0)
+    return -3;
+
+  *qubitCount = resource_->getQubitCount();
+  *online = resource_->isOnline();
+
+  *couplingMap = nullptr;
+
+  auto& gates = resource_->getNativeGateset();
+
+  *gateCount = gates.size();
+
+  *nativeGateset = (MQSSGateRef*)malloc(sizeof(MQSSGateRef) * gates.size());
+
+  if (!*nativeGateset)
+    return -4;
+
+  for (size_t i = 0; i < gates.size(); ++i) {
+    (*nativeGateset)[i] = wrap<MQSSGateRef>(&gates[i]);
+  }
+
+  return 0;
 }

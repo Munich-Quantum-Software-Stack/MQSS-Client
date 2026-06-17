@@ -18,6 +18,8 @@
  */
 
 #include "mqss/job.h"
+#include "mqss-c/job.h"
+#include "mqss/client.h"
 
 using namespace mqss::client;
 
@@ -95,4 +97,11 @@ JobResult::JobResult(const nlohmann::json& parsed) {
   mTimestampCompleted = parsed.at("timestamp_completed").get<std::string>();
   mTimestampSubmitted = parsed.at("timestamp_submitted").get<std::string>();
   mTimestampScheduled = parsed.at("timestamp_scheduled").get<std::string>();
+}
+
+MQSSJobRef mqssClientCreateCircuitJob(char* circuit,
+                               char* circuitFormat, char* resourceName,
+                               unsigned int shots, bool noModify, bool queued) {
+  return wrap<MQSSJobRef>(new CircuitJobRequest(
+      circuit, circuitFormat, resourceName, shots, noModify, queued));
 }

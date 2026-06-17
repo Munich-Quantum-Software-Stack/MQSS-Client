@@ -21,6 +21,7 @@
 
 #include "clients/hpc_client.h"
 #include "clients/rest_client.h"
+#include "mqss-c/client.h"
 
 #include <chrono>
 #include <optional>
@@ -138,4 +139,41 @@ int MQSSClient::getNumberPendingJobs(const std::string& resource) const {
   nlohmann::json parsed = nlohmann::json::parse(resp);
 
   return parsed.value("num_pending_jobs", -1);
+}
+
+MQSSClientRef mqssClientCreateClient(char* token, char* urlOrQueue,
+                                     bool isHpc) {
+
+  return wrap<MQSSClientRef>(new MQSSClient(token, urlOrQueue, isHpc));
+}
+MQSSResourceRef* mqssClientGetAllResources(MQSSClientRef client, int* size) {
+  auto resources_ = unwrap<MQSSClient>(client)->getAllResources();
+
+  auto resources =
+      (MQSSResourceRef*)malloc(resources_.size() * sizeof(MQSSResourceRef));
+
+  for (size_t i = 0; i < resources_.size(); ++i) {
+    resources[i] = wrap<MQSSResourceRef>(new Resource(resources_[i]));
+  }
+
+  *size = (int)resources_.size();
+  return resources;
+}
+
+int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
+  auto uuid =
+      unwrap<MQSSClient>(client)->submitJob(*unwrap<CircuitJobRequest>(job));
+  if (!uuid.has_value()) {
+    return -1;
+  }
+  return std::stoi(*uuid);
+}
+
+MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
+                                        bool wait, unsigned int timeout) {
+
+  std::unique_ptr<JobResult> jobResult = unwrap<MQSSClient>(client)->getJobResult(*unwrap<CircuitJobRequest>(job),
+                                           wait, timeout);
+                                          std::cout << jobResult->getTimestampCompleted() << "\n";
+  return wrap<MQSSJobResultRef>(jobResult.get());
 }
