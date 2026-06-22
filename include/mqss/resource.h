@@ -38,7 +38,7 @@ public:
 
   Gate(Gate&&) = default;
   Gate& operator=(Gate&&) = default;
-  
+
   const std::string& getName() const noexcept { return mName; }
 
   const unsigned int& getQubitNumber() const noexcept { return mQubitNumber; }

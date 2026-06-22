@@ -22,9 +22,9 @@ extern "C" {
 #endif
 #include <stdbool.h>
 
-typedef struct MQSSOpaqueResource *MQSSResourceRef;
+typedef struct MQSSOpaqueResource* MQSSResourceRef;
 
-typedef struct MQSSOpaqueGate *MQSSGateRef;
+typedef struct MQSSOpaqueGate* MQSSGateRef;
 
 int mqssClientResourceGetInfo(MQSSResourceRef resource, char** name,
                               unsigned* qubitCount, bool* online,

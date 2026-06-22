@@ -172,8 +172,8 @@ int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
 MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
                                         bool wait, unsigned int timeout) {
 
-  std::unique_ptr<JobResult> jobResult = unwrap<MQSSClient>(client)->getJobResult(*unwrap<CircuitJobRequest>(job),
-                                           wait, timeout);
-                                          std::cout << jobResult->getTimestampCompleted() << "\n";
-  return wrap<MQSSJobResultRef>(jobResult.get());
+  std::unique_ptr<JobResult> jobResult =
+      unwrap<MQSSClient>(client)->getJobResult(*unwrap<CircuitJobRequest>(job),
+                                               wait, timeout);
+  return wrap<MQSSJobResultRef>(jobResult.release());
 }

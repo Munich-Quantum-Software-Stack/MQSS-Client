@@ -17,29 +17,33 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
-
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 #include <stdbool.h>
-typedef struct MQSSOpaqueJob *MQSSJobRef;
+typedef struct MQSSOpaqueJob* MQSSJobRef;
 
-typedef struct MQSSOpaqueJobResult *MQSSJobResultRef;
+typedef struct MQSSOpaqueJobResult* MQSSJobResultRef;
 
-MQSSJobRef mqssClientCreateCircuitJob(char* circuit,
-                               char* circuitFormat, char* resourceName,
-                               unsigned int shots, bool noModify, bool queued);
+MQSSJobRef mqssClientCreateCircuitJob(char* circuit, char* circuitFormat,
+                                      char* resourceName, unsigned int shots,
+                                      bool noModify, bool queued);
 
 int mqssClientCreateHamiltonianJob(MQSSJobRef job, char* resourceName,
                                    char* interactionStr, char* coefficientsStr);
 
-int mqssClientGetJobResultCounts(MQSSJobResultRef jobResult, char** bitstreams, int* counts, int size);
+int mqssClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
+                                 int** counts, int* size);
 
-int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult, unsigned int completedTimestamp);
+int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* completedTimestamp);
 
-int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult, unsigned int submittedTimestamp);
+int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* submittedTimestamp);
 
-int mqssClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult, unsigned int scheduledTimestamp);
+int mqssClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* scheduledTimestamp);
 
 #ifdef __cplusplus
 }

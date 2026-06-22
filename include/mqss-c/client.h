@@ -38,8 +38,8 @@ int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
 
 void mqssClientCancelJob(MQSSClientRef client, MQSSJobRef job);
 
-MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job, bool wait,
-                            unsigned int timeout);
+MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
+                                        bool wait, unsigned int timeout);
 
 int mqssClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName,
                                    int pendingJobNumber);

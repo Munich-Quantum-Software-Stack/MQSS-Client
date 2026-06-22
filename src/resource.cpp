@@ -21,6 +21,7 @@
 
 #include "mqss-c/resource.h"
 #include "mqss/client.h"
+
 #include <regex>
 
 using namespace mqss::client;

@@ -18,6 +18,7 @@
  */
 
 #include "mqss/job.h"
+
 #include "mqss-c/job.h"
 #include "mqss/client.h"
 
@@ -99,9 +100,110 @@ JobResult::JobResult(const nlohmann::json& parsed) {
   mTimestampScheduled = parsed.at("timestamp_scheduled").get<std::string>();
 }
 
-MQSSJobRef mqssClientCreateCircuitJob(char* circuit,
-                               char* circuitFormat, char* resourceName,
-                               unsigned int shots, bool noModify, bool queued) {
+MQSSJobRef mqssClientCreateCircuitJob(char* circuit, char* circuitFormat,
+                                      char* resourceName, unsigned int shots,
+                                      bool noModify, bool queued) {
   return wrap<MQSSJobRef>(new CircuitJobRequest(
       circuit, circuitFormat, resourceName, shots, noModify, queued));
+}
+
+int mqssClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
+                                 int** counts, int* size) {
+  if (!jobResult || !bitstreams || !counts || !size)
+    return -1;
+
+  auto results = unwrap<JobResult>(jobResult)->getResults();
+
+  // Count total entries across all result maps.
+  size_t totalEntries = 0;
+  for (const auto& result : results)
+    totalEntries += result.size();
+
+  *size = static_cast<int>(totalEntries);
+
+  if (totalEntries == 0) {
+    *bitstreams = nullptr;
+    *counts = nullptr;
+    return 0;
+  }
+
+  *counts = static_cast<int*>(malloc(sizeof(int) * totalEntries));
+  *bitstreams = static_cast<char**>(malloc(sizeof(char*) * totalEntries));
+
+  if (!*counts || !*bitstreams) {
+    free(*counts);
+    free(*bitstreams);
+    return -1;
+  }
+
+  size_t index = 0;
+
+  for (const auto& result : results) {
+    for (const auto& [bitstream, count] : result) {
+
+      (*bitstreams)[index] = static_cast<char*>(malloc(bitstream.size() + 1));
+
+      if (!(*bitstreams)[index]) {
+        for (size_t i = 0; i < index; ++i)
+          free((*bitstreams)[i]);
+        free(*bitstreams);
+        free(*counts);
+        return -1;
+      }
+
+      std::memcpy((*bitstreams)[index], bitstream.c_str(),
+                  bitstream.size() + 1);
+
+      (*counts)[index] = static_cast<int>(count);
+
+      ++index;
+    }
+  }
+
+  return 0;
+}
+
+uint64_t parseTimestamp(const std::string& s) {
+
+  std::tm tm = {};
+  std::istringstream ss(s.substr(0, 19)); // YYYY-MM-DD HH:MM:SS
+
+  ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+  auto tt = std::mktime(&tm);
+
+  auto tp = std::chrono::system_clock::from_time_t(tt);
+
+  // Parse microseconds
+  auto dot = s.find('.');
+  if (dot != std::string::npos) {
+    int micros = std::stoi(s.substr(dot + 1));
+    tp += std::chrono::microseconds(micros);
+  }
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+             tp.time_since_epoch())
+      .count();
+}
+int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* completedTimestamp) {
+
+  *completedTimestamp =
+      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampCompleted());
+  return 0;
+}
+
+int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* submittedTimestamp) {
+
+  *submittedTimestamp =
+      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampSubmitted());
+  return 0;
+}
+
+int mqssClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
+                                             uint64_t* scheduledTimestamp) {
+
+  *scheduledTimestamp =
+      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampScheduled());
+  return 0;
 }
