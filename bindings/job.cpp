@@ -70,6 +70,6 @@ void registerJobInterface(const py::module& m) {
                              &mqss::client::JobResult::getTimestampCompleted)
       .def_property_readonly("timestamp_submitted",
                              &mqss::client::JobResult::getTimestampSubmitted)
-      .def_property_readonly("res.timestamp_scheduled",
+      .def_property_readonly("timestamp_scheduled",
                              &mqss::client::JobResult::getTimestampScheduled);
 }
