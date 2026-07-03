@@ -141,12 +141,12 @@ int MQSSClient::getNumberPendingJobs(const std::string& resource) const {
   return parsed.value("num_pending_jobs", -1);
 }
 
-MQSSClientRef mqssClientCreateClient(char* token, char* urlOrQueue,
+MQSSClientRef MQSSClientCreateClient(char* token, char* urlOrQueue,
                                      bool isHpc) {
 
   return wrap<MQSSClientRef>(new MQSSClient(token, urlOrQueue, isHpc));
 }
-MQSSResourceRef* mqssClientGetAllResources(MQSSClientRef client, int* size) {
+MQSSResourceRef* MQSSClientGetAllResources(MQSSClientRef client, int* size) {
   auto resources_ = unwrap<MQSSClient>(client)->getAllResources();
 
   auto resources =
@@ -160,7 +160,18 @@ MQSSResourceRef* mqssClientGetAllResources(MQSSClientRef client, int* size) {
   return resources;
 }
 
-int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
+MQSSResourceRef MQSSClientGetResourceInfo(MQSSClientRef client,
+                                          const char* resourceName) {
+  if (!resourceName)
+    return nullptr;
+
+  auto resource = unwrap<MQSSClient>(client)->getResourceInfo(resourceName);
+  if (!resource)
+    return nullptr;
+
+  return wrap<MQSSResourceRef>(new Resource(*resource));
+}
+int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
   auto uuid =
       unwrap<MQSSClient>(client)->submitJob(*unwrap<CircuitJobRequest>(job));
   if (!uuid.has_value()) {
@@ -169,11 +180,20 @@ int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
   return std::stoi(*uuid);
 }
 
-MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
+void MQSSClientCancelJob(MQSSClientRef client, MQSSJobRef job) {
+  unwrap<MQSSClient>(client)->cancelJob(*unwrap<CircuitJobRequest>(job));
+}
+
+MQSSJobResultRef MQSSClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
                                         bool wait, unsigned int timeout) {
 
   std::unique_ptr<JobResult> jobResult =
       unwrap<MQSSClient>(client)->getJobResult(*unwrap<CircuitJobRequest>(job),
                                                wait, timeout);
   return wrap<MQSSJobResultRef>(jobResult.release());
+}
+
+int MQSSClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName) {
+
+  return unwrap<MQSSClient>(client)->getNumberPendingJobs(resourceName);
 }

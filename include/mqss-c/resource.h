@@ -26,14 +26,16 @@ typedef struct MQSSOpaqueResource* MQSSResourceRef;
 
 typedef struct MQSSOpaqueGate* MQSSGateRef;
 
-int mqssClientResourceGetInfo(MQSSResourceRef resource, char** name,
+int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
                               unsigned* qubitCount, bool* online,
-                              int** couplingMap, MQSSGateRef** nativeGateset,
+                              int** couplingMap, unsigned int* couplingMapSize,
+                              MQSSGateRef** nativeGateset,
                               unsigned int* gateCount);
 
-int mqssClientResourceGetGateInfo(MQSSGateRef gate, unsigned int qubitNumber,
-                                  unsigned int parameterNumber,
-                                  int* supportedQubits);
+int MQSSClientResourceGetGateInfo(MQSSGateRef gate, char** name, unsigned* qubitNumber,
+                                  unsigned* parameterNumber,
+                                  int** supportedQubits,
+                                  unsigned int* supportedQubitCount);
 
 #ifdef __cplusplus
 }

@@ -173,36 +173,78 @@ Resource::Resource(const nlohmann::json& json) {
   mCouplingMap = std::move(couplingMap);
   mNativeGateset = std::move(nativeGateset);
 }
+template <typename T>
+int* flatten2D(const std::vector<std::vector<T>>& input, unsigned int* count) {
+  size_t total = 0;
+  for (const auto& row : input)
+    total += row.size();
 
-int mqssClientResourceGetInfo(MQSSResourceRef resource, char** name,
+  int* result = static_cast<int*>(malloc(total * sizeof(int)));
+  if (!result)
+    return nullptr;
+
+  size_t index = 0;
+  for (const auto& row : input) {
+    for (T value : row) {
+      result[index++] = static_cast<int>(value);
+    }
+  }
+  *count = total;
+  return result;
+}
+
+int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
                               unsigned* qubitCount, bool* online,
-                              int** couplingMap, MQSSGateRef** nativeGateset,
-                              unsigned int* gateCount) {
-  auto* resource_ = unwrap<Resource>(resource);
-  if (resource_ == nullptr)
+                              int** couplingMap, unsigned int* couplingMapSize,
+                              MQSSGateRef** nativeGateset,
+                              unsigned* gateCount) {
+  auto* r = unwrap<Resource>(resource);
+  if (!r)
     return -2;
 
-  // Name
-  if (asprintf(name, "%s", resource_->getName().c_str()) < 0)
+  if (asprintf(name, "%s", r->getName().c_str()) < 0)
     return -3;
 
-  *qubitCount = resource_->getQubitCount();
-  *online = resource_->isOnline();
+  *qubitCount = r->getQubitCount();
+  *online = r->isOnline();
 
-  *couplingMap = nullptr;
-
-  auto& gates = resource_->getNativeGateset();
-
-  *gateCount = gates.size();
-
-  *nativeGateset = (MQSSGateRef*)malloc(sizeof(MQSSGateRef) * gates.size());
-
-  if (!*nativeGateset)
+  *couplingMap = flatten2D(r->getCouplingMap(), couplingMapSize);
+  if (!*couplingMap)
     return -4;
 
-  for (size_t i = 0; i < gates.size(); ++i) {
-    (*nativeGateset)[i] = wrap<MQSSGateRef>(&gates[i]);
-  }
+  const auto& gates = r->getNativeGateset();
+  *gateCount = static_cast<unsigned>(gates.size());
+
+  *nativeGateset =
+      static_cast<MQSSGateRef*>(malloc(gates.size() * sizeof(MQSSGateRef)));
+
+  if (!*nativeGateset)
+    return -5;
+
+  for (size_t i = 0; i < gates.size(); ++i)
+    (*nativeGateset)[i] = wrap<MQSSGateRef>(new Gate(gates[i]));
+
+  return 0;
+}
+
+int MQSSClientResourceGetGateInfo(MQSSGateRef gate,char** name, unsigned* qubitNumber,
+                                  unsigned* parameterNumber,
+                                  int** supportedQubits,
+                                  unsigned int* supportedQubitCount) {
+  auto* g = unwrap<Gate>(gate);
+  if (!g)
+    return -1;
+  auto gate_name = g->getName();
+  *name = (char*)malloc(gate_name.size() * sizeof(char));
+  strcpy(*name, gate_name.data());
+
+
+  *qubitNumber = g->getQubitNumber();
+  *parameterNumber = g->getParameterNumber();
+
+  *supportedQubits = flatten2D(g->getSupportedQubits(), supportedQubitCount);
+  if (!*supportedQubits)
+    return -2;
 
   return 0;
 }

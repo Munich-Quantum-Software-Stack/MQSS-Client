@@ -100,14 +100,21 @@ JobResult::JobResult(const nlohmann::json& parsed) {
   mTimestampScheduled = parsed.at("timestamp_scheduled").get<std::string>();
 }
 
-MQSSJobRef mqssClientCreateCircuitJob(char* circuit, char* circuitFormat,
+MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
                                       char* resourceName, unsigned int shots,
                                       bool noModify, bool queued) {
   return wrap<MQSSJobRef>(new CircuitJobRequest(
       circuit, circuitFormat, resourceName, shots, noModify, queued));
 }
 
-int mqssClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
+MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
+                                          char* interactionStr,
+                                          char* coefficientsStr) {
+  return wrap<MQSSJobRef>(
+      new HamiltonianJobRequest(resourceName, interactionStr, coefficientsStr));
+}
+
+int MQSSClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
                                  int** counts, int* size) {
   if (!jobResult || !bitstreams || !counts || !size)
     return -1;
@@ -184,7 +191,7 @@ uint64_t parseTimestamp(const std::string& s) {
              tp.time_since_epoch())
       .count();
 }
-int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* completedTimestamp) {
 
   *completedTimestamp =
@@ -192,7 +199,7 @@ int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
   return 0;
 }
 
-int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* submittedTimestamp) {
 
   *submittedTimestamp =
@@ -200,7 +207,7 @@ int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
   return 0;
 }
 
-int mqssClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* scheduledTimestamp) {
 
   *scheduledTimestamp =

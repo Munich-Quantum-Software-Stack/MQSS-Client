@@ -27,22 +27,21 @@ extern "C" {
 
 typedef struct MQSSOpaqueClient* MQSSClientRef;
 
-MQSSClientRef mqssClientCreateClient(char* token, char* urlOrQueue, bool isHpc);
+MQSSClientRef MQSSClientCreateClient(char* token, char* urlOrQueue, bool isHpc);
 
-MQSSResourceRef* mqssClientGetAllResources(MQSSClientRef client, int* size);
+MQSSResourceRef* MQSSClientGetAllResources(MQSSClientRef client, int* size);
 
-MQSSResourceRef* mqssClientGetResourceInfo(MQSSClientRef client,
+MQSSResourceRef MQSSClientGetResourceInfo(MQSSClientRef client,
                                            char* resourceName);
 
-int mqssClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
+int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
 
-void mqssClientCancelJob(MQSSClientRef client, MQSSJobRef job);
+void MQSSClientCancelJob(MQSSClientRef client, MQSSJobRef job);
 
-MQSSJobResultRef mqssClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
+MQSSJobResultRef MQSSClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
                                         bool wait, unsigned int timeout);
 
-int mqssClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName,
-                                   int pendingJobNumber);
+int MQSSClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName);
 #ifdef __cplusplus
 }
 #endif

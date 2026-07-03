@@ -26,23 +26,23 @@ typedef struct MQSSOpaqueJob* MQSSJobRef;
 
 typedef struct MQSSOpaqueJobResult* MQSSJobResultRef;
 
-MQSSJobRef mqssClientCreateCircuitJob(char* circuit, char* circuitFormat,
+MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
                                       char* resourceName, unsigned int shots,
                                       bool noModify, bool queued);
 
-int mqssClientCreateHamiltonianJob(MQSSJobRef job, char* resourceName,
+MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
                                    char* interactionStr, char* coefficientsStr);
 
-int mqssClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
+int MQSSClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
                                  int** counts, int* size);
 
-int mqssClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* completedTimestamp);
 
-int mqssClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* submittedTimestamp);
 
-int mqssClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
+int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* scheduledTimestamp);
 
 #ifdef __cplusplus
