@@ -32,7 +32,7 @@ MQSSClientRef MQSSClientCreateClient(char* token, char* urlOrQueue, bool isHpc);
 MQSSResourceRef* MQSSClientGetAllResources(MQSSClientRef client, int* size);
 
 MQSSResourceRef MQSSClientGetResourceInfo(MQSSClientRef client,
-                                           char* resourceName);
+                                          char* resourceName);
 
 int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
 

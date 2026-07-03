@@ -31,7 +31,8 @@ MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
                                       bool noModify, bool queued);
 
 MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
-                                   char* interactionStr, char* coefficientsStr);
+                                          char* interactionStr,
+                                          char* coefficientsStr);
 
 int MQSSClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
                                  int** counts, int* size);

@@ -32,7 +32,8 @@ int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
                               MQSSGateRef** nativeGateset,
                               unsigned int* gateCount);
 
-int MQSSClientResourceGetGateInfo(MQSSGateRef gate, char** name, unsigned* qubitNumber,
+int MQSSClientResourceGetGateInfo(MQSSGateRef gate, char** name,
+                                  unsigned* qubitNumber,
                                   unsigned* parameterNumber,
                                   int** supportedQubits,
                                   unsigned int* supportedQubitCount);

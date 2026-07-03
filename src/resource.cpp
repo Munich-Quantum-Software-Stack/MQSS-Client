@@ -227,7 +227,8 @@ int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
   return 0;
 }
 
-int MQSSClientResourceGetGateInfo(MQSSGateRef gate,char** name, unsigned* qubitNumber,
+int MQSSClientResourceGetGateInfo(MQSSGateRef gate, char** name,
+                                  unsigned* qubitNumber,
                                   unsigned* parameterNumber,
                                   int** supportedQubits,
                                   unsigned int* supportedQubitCount) {
@@ -237,7 +238,6 @@ int MQSSClientResourceGetGateInfo(MQSSGateRef gate,char** name, unsigned* qubitN
   auto gate_name = g->getName();
   *name = (char*)malloc(gate_name.size() * sizeof(char));
   strcpy(*name, gate_name.data());
-
 
   *qubitNumber = g->getQubitNumber();
   *parameterNumber = g->getParameterNumber();
