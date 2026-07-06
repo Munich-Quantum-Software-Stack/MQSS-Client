@@ -17,6 +17,8 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif

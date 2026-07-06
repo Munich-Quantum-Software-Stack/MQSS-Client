@@ -17,6 +17,8 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,7 +34,7 @@ MQSSClientRef MQSSClientCreateClient(char* token, char* urlOrQueue, bool isHpc);
 MQSSResourceRef* MQSSClientGetAllResources(MQSSClientRef client, int* size);
 
 MQSSResourceRef MQSSClientGetResourceInfo(MQSSClientRef client,
-                                          char* resourceName);
+                                          const char* resourceName);
 
 int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
 

@@ -22,6 +22,13 @@
 #include "mqss-c/job.h"
 #include "mqss/client.h"
 
+#include <chrono>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
 using namespace mqss::client;
 
 nlohmann::json CircuitJobRequest::toJson() const {
@@ -103,6 +110,8 @@ JobResult::JobResult(const nlohmann::json& parsed) {
 MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
                                       char* resourceName, unsigned int shots,
                                       bool noModify, bool queued) {
+  if (!circuit || !circuitFormat || !resourceName)
+    return nullptr;
   return wrap<MQSSJobRef>(new CircuitJobRequest(
       circuit, circuitFormat, resourceName, shots, noModify, queued));
 }
@@ -110,6 +119,8 @@ MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
 MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
                                           char* interactionStr,
                                           char* coefficientsStr) {
+  if (!resourceName || !interactionStr || !coefficientsStr)
+    return nullptr;
   return wrap<MQSSJobRef>(
       new HamiltonianJobRequest(resourceName, interactionStr, coefficientsStr));
 }
@@ -193,24 +204,42 @@ uint64_t parseTimestamp(const std::string& s) {
 }
 int MQSSClientGetJobResultCompletedTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* completedTimestamp) {
+  if (!jobResult || !completedTimestamp)
+    return -1;
 
-  *completedTimestamp =
-      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampCompleted());
+  try {
+    *completedTimestamp =
+        parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampCompleted());
+  } catch (...) {
+    return -2;
+  }
   return 0;
 }
 
 int MQSSClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
-                                             uint64_t* submittedTimestamp) {
+                                            uint64_t* submittedTimestamp) {
+  if (!jobResult || !submittedTimestamp)
+    return -1;
 
-  *submittedTimestamp =
-      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampSubmitted());
+  try {
+    *submittedTimestamp =
+        parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampSubmitted());
+  } catch (...) {
+    return -2;
+  }
   return 0;
 }
 
 int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
-                                             uint64_t* scheduledTimestamp) {
+                                            uint64_t* scheduledTimestamp) {
+  if (!jobResult || !scheduledTimestamp)
+    return -1;
 
-  *scheduledTimestamp =
-      parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampScheduled());
+  try {
+    *scheduledTimestamp =
+        parseTimestamp(unwrap<JobResult>(jobResult)->getTimestampScheduled());
+  } catch (...) {
+    return -2;
+  }
   return 0;
 }

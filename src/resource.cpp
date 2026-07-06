@@ -175,6 +175,8 @@ Resource::Resource(const nlohmann::json& json) {
 }
 template <typename T>
 int* flatten2D(const std::vector<std::vector<T>>& input, unsigned int* count) {
+  if (!count)
+    return nullptr;
   size_t total = 0;
   for (const auto& row : input)
     total += row.size();
@@ -198,6 +200,11 @@ int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
                               int** couplingMap, unsigned int* couplingMapSize,
                               MQSSGateRef** nativeGateset,
                               unsigned* gateCount) {
+  if (!name || !qubitCount || !online || !couplingMap || !couplingMapSize ||
+      !nativeGateset || !gateCount) {
+    return -1;
+  }
+
   auto* r = unwrap<Resource>(resource);
   if (!r)
     return -2;
@@ -209,8 +216,11 @@ int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
   *online = r->isOnline();
 
   *couplingMap = flatten2D(r->getCouplingMap(), couplingMapSize);
-  if (!*couplingMap)
+  if (!*couplingMap) {
+    free(*name);
+    *name = nullptr;
     return -4;
+  }
 
   const auto& gates = r->getNativeGateset();
   *gateCount = static_cast<unsigned>(gates.size());
@@ -218,8 +228,13 @@ int MQSSClientResourceGetInfo(MQSSResourceRef resource, char** name,
   *nativeGateset =
       static_cast<MQSSGateRef*>(malloc(gates.size() * sizeof(MQSSGateRef)));
 
-  if (!*nativeGateset)
+  if (!*nativeGateset) {
+    free(*couplingMap);
+    *couplingMap = nullptr;
+    free(*name);
+    *name = nullptr;
     return -5;
+  }
 
   for (size_t i = 0; i < gates.size(); ++i)
     (*nativeGateset)[i] = wrap<MQSSGateRef>(new Gate(gates[i]));
@@ -232,19 +247,29 @@ int MQSSClientResourceGetGateInfo(MQSSGateRef gate, char** name,
                                   unsigned* parameterNumber,
                                   int** supportedQubits,
                                   unsigned int* supportedQubitCount) {
+  if (!gate || !name || !qubitNumber || !parameterNumber || !supportedQubits ||
+      !supportedQubitCount) {
+    return -1;
+  }
+
   auto* g = unwrap<Gate>(gate);
   if (!g)
     return -1;
-  auto gate_name = g->getName();
-  *name = (char*)malloc(gate_name.size() * sizeof(char));
-  strcpy(*name, gate_name.data());
+  const auto& gateName = g->getName();
+  *name = static_cast<char*>(malloc(gateName.size() + 1));
+  if (!*name)
+    return -2;
+  std::memcpy(*name, gateName.c_str(), gateName.size() + 1);
 
   *qubitNumber = g->getQubitNumber();
   *parameterNumber = g->getParameterNumber();
 
   *supportedQubits = flatten2D(g->getSupportedQubits(), supportedQubitCount);
-  if (!*supportedQubits)
+  if (!*supportedQubits) {
+    free(*name);
+    *name = nullptr;
     return -2;
+  }
 
   return 0;
 }
