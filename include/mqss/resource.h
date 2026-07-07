@@ -33,6 +33,12 @@ public:
         mParameterNumber(parameterNumber),
         mSupportedQubits(std::move(supportedQubits)) {}
 
+  Gate(const Gate&) = default;
+  Gate& operator=(const Gate&) = default;
+
+  Gate(Gate&&) = default;
+  Gate& operator=(Gate&&) = default;
+
   const std::string& getName() const noexcept { return mName; }
 
   const unsigned int& getQubitNumber() const noexcept { return mQubitNumber; }
@@ -69,9 +75,7 @@ public:
     return mCouplingMap;
   }
 
-  const std::vector<Gate>& getNativeGateset() const noexcept {
-    return mNativeGateset;
-  }
+  std::vector<Gate>& getNativeGateset() { return mNativeGateset; }
 
 private:
   std::string mName;

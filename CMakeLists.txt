@@ -22,7 +22,7 @@ project(
   MQSS-Client
   VERSION 0.1
   DESCRIPTION "MQSS Client"
-  LANGUAGES CXX)
+  LANGUAGES CXX C)
 
 # Generate compile_commands.json to make it easier to work with clang based tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS
@@ -33,6 +33,7 @@ option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
 option(BUILD_INTEGRATION_TESTS "Build the unit tests" OFF)
 option(ENABLE_COVERAGE "Enabling coverage" OFF)
+option(BUILD_BINDINGS "Build Python Bindings" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 

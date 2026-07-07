@@ -19,6 +19,16 @@
 
 #include "mqss/job.h"
 
+#include "mqss-c/job.h"
+#include "mqss/client.h"
+
+#include <chrono>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
 using namespace mqss::client;
 
 nlohmann::json CircuitJobRequest::toJson() const {
