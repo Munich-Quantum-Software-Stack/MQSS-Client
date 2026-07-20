@@ -21,6 +21,7 @@
 
 #include "clients/hpc_client.h"
 #include "clients/rest_client.h"
+#include "mqss-c/client.h"
 
 #include <chrono>
 #include <optional>

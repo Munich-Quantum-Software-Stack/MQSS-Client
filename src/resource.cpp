@@ -19,6 +19,9 @@
 
 #include "mqss/resource.h"
 
+#include "mqss-c/resource.h"
+#include "mqss/client.h"
+
 #include <regex>
 
 using namespace mqss::client;
@@ -51,6 +54,43 @@ std::vector<std::vector<int>> extractCouplingMap(const nlohmann::json& response,
   return result;
 }
 
+std::pair<unsigned int, unsigned int>
+getGateProterties(const std::string& gateName) {
+
+  if (gateName == "cz") {
+    return {2, 0};
+  }
+  if (gateName == "measure") {
+    return {1, 0};
+  }
+  if (gateName == "id") {
+    return {1, 0};
+  }
+  if (gateName == "r") {
+    return {1, 2};
+  }
+  if (gateName == "rx") {
+    return {1, 1};
+  }
+  if (gateName == "rz") {
+    return {1, 1};
+  }
+  if (gateName == "rxx") {
+    return {2, 1};
+  }
+  if (gateName == "if_else") {
+    return {1, 0};
+  }
+  if (gateName == "reset") {
+    return {1, 0};
+  }
+  if (gateName == "swap") {
+    return {2, 0};
+  }
+
+  throw std::invalid_argument("Unknown Gate: " + gateName);
+}
+
 std::vector<Gate> extractGates(const nlohmann::json& response,
                                const std::string& key) {
 
@@ -66,13 +106,13 @@ std::vector<Gate> extractGates(const nlohmann::json& response,
   std::regex gateRegex(R"(\(\s*['"]([^'"]+)['"]\s*,\s*(\{[^{}]*\})\s*\))");
   auto gateBegin = std::sregex_iterator(text.begin(), text.end(), gateRegex);
   auto gateEnd = std::sregex_iterator();
-  std::string GateName;
-  unsigned int arity;
+  std::string gateName;
+  unsigned int qubitCount;
   std::vector<std::vector<unsigned int>> supportedQubits;
 
   for (auto it = gateBegin; it != gateEnd; ++it) {
 
-    GateName = (*it)[1];
+    gateName = (*it)[1];
 
     std::string body = (*it)[2];
     std::regex tupleRegex(R"(([^)]*)\)\s*:\s*None)");
@@ -99,9 +139,9 @@ std::vector<Gate> extractGates(const nlohmann::json& response,
       supportedQubits.push_back(qubits);
     }
 
-    arity = !supportedQubits.empty() ? supportedQubits.at(0).size() : 0;
-
-    result.push_back(Gate(GateName, arity, std::move(supportedQubits)));
+    auto [qubitCount, parameterNumber] = getGateProterties(gateName);
+    result.emplace_back(gateName, qubitCount, parameterNumber,
+                        std::move(supportedQubits));
   }
 
   return result;

@@ -17,6 +17,7 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
+#pragma once
 #include <nlohmann/json.hpp>
 #include <string>
 #include <utility>

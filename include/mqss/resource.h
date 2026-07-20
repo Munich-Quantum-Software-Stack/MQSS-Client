@@ -17,6 +17,7 @@
  * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
  */
 
+#pragma once
 #include <nlohmann/json.hpp>
 #include <string>
 #include <utility>
@@ -26,14 +27,25 @@ namespace mqss::client {
 class Gate {
 
 public:
-  Gate(std::string name, unsigned int arity,
+  Gate(std::string name, unsigned int qubitNumber, unsigned int parameterNumber,
        std::vector<std::vector<unsigned int>> supportedQubits)
-      : mName(std::move(name)), mArity(arity),
+      : mName(std::move(name)), mQubitNumber(qubitNumber),
+        mParameterNumber(parameterNumber),
         mSupportedQubits(std::move(supportedQubits)) {}
+
+  Gate(const Gate&) = default;
+  Gate& operator=(const Gate&) = default;
+
+  Gate(Gate&&) = default;
+  Gate& operator=(Gate&&) = default;
 
   const std::string& getName() const noexcept { return mName; }
 
-  const unsigned int& getArity() const noexcept { return mArity; }
+  const unsigned int& getQubitNumber() const noexcept { return mQubitNumber; }
+
+  const unsigned int& getParameterNumber() const noexcept {
+    return mParameterNumber;
+  }
 
   const std::vector<std::vector<unsigned int>>&
   getSupportedQubits() const noexcept {
@@ -42,7 +54,8 @@ public:
 
 private:
   std::string mName;
-  unsigned int mArity;
+  unsigned int mQubitNumber;
+  unsigned int mParameterNumber;
   std::vector<std::vector<unsigned int>> mSupportedQubits;
 };
 
@@ -62,9 +75,7 @@ public:
     return mCouplingMap;
   }
 
-  const std::vector<Gate>& getNativeGateset() const noexcept {
-    return mNativeGateset;
-  }
+  std::vector<Gate>& getNativeGateset() { return mNativeGateset; }
 
 private:
   std::string mName;

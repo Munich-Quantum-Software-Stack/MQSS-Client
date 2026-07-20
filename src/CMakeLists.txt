@@ -23,14 +23,25 @@ file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
 add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
 
-target_include_directories(mqss_client PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(
+  mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+                     $<INSTALL_INTERFACE:include>)
+
 target_link_libraries(mqss_client PUBLIC curl nlohmann_json rabbitmq)
 
 include(GNUInstallDirs)
 
 install(
   TARGETS mqss_client
-  DESTINATION .
-  COMPONENT mqss_client_bindings)
+  EXPORT mqss_client_targets
+  LIBRARY DESTINATION . COMPONENT mqss_client_bindings
+  ARCHIVE DESTINATION . COMPONENT mqss_client_bindings
+  RUNTIME DESTINATION . COMPONENT mqss_client_bindings)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+  EXPORT mqss_client_targets
+  FILE MQSSClientTargets.cmake
+  NAMESPACE MQSS::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mqss_client)
