@@ -91,6 +91,7 @@ std::string MQSSRestClient::post(const std::string& path,
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
 
   CURLcode res = curl_easy_perform(curl);
   curl_easy_cleanup(curl);

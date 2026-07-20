@@ -22,6 +22,8 @@
 #include "common.h"
 #include "mqss/job.h"
 
+#include <sstream>
+
 using namespace mqss::client;
 
 MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
