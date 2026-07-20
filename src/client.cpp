@@ -95,7 +95,12 @@ std::string MQSSClient::getJobStatus(const JobRequest& job) {
     return "";
 
   nlohmann::json parsed = nlohmann::json::parse(resp);
-  return parsed.value("status", "");
+
+  if (parsed.contains("status") && parsed["status"].is_string()) {
+    return parsed["status"].get<std::string>();
+  }
+
+  return "";
 }
 
 std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest& job,
