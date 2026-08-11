@@ -62,6 +62,7 @@ std::string MQSSRestClient::get(const std::string& path) {
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
   curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
+  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
 
   CURLcode res = curl_easy_perform(curl);
   if (res != CURLE_OK)
@@ -91,6 +92,7 @@ std::string MQSSRestClient::post(const std::string& path,
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
 
   CURLcode res = curl_easy_perform(curl);
   curl_easy_cleanup(curl);
@@ -114,6 +116,7 @@ void MQSSRestClient::del(const std::string& path) {
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
   curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
 
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
 

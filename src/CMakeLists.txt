@@ -21,7 +21,12 @@ find_package(rabbitmq-c REQUIRED)
 
 file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
-add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
+if(BUILD_SHARED_LIBS)
+  add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
+else()
+  add_library(mqss_client STATIC ${MQSS_CLIENT_SOURCES})
+  set_target_properties(mqss_client PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
 
 target_include_directories(
   mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

@@ -34,6 +34,7 @@ option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
 option(BUILD_INTEGRATION_TESTS "Build the unit tests" OFF)
 option(ENABLE_COVERAGE "Enabling coverage" OFF)
 option(BUILD_BINDINGS "Build Python Bindings" OFF)
+option(BUILD_SHARED_LIBS "Build Shared Library " ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
