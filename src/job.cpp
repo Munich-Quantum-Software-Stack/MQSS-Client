@@ -21,12 +21,15 @@
 
 #include "mqss-c/job.h"
 #include "mqss/client.h"
+#include "qdmi/constants.h"
 
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <iomanip>
+#include <iostream>
+#include <qaptiva_compiler_qdmi/device.h>
 #include <sstream>
 
 using namespace mqss::client;
@@ -45,10 +48,72 @@ CircuitJobRequest::CircuitJobRequest(std::string circuit,
                                      std::string circuitFormat,
                                      std::string resourceName,
                                      unsigned int shots, bool noModify,
-                                     bool queued)
+                                     bool queued, bool isNisqCompiler)
     : mCircuit(std::move(circuit)), mCircuitFormat(std::move(circuitFormat)),
       mResourceName(std::move(resourceName)), mShots(shots),
       mNoModify(noModify), mQueued(queued) {}
+
+int CircuitJobRequest::nisqCompile(const std::string& circuit,
+                                   const std::string& nativeGateset,
+                                   std::string codeToExecute) {
+  int err = QAPTIVA_COMPILER_QDMI_device_initialize();
+
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+
+  // Initialize session
+  QAPTIVA_COMPILER_QDMI_Device_Session session;
+  err = QAPTIVA_COMPILER_QDMI_device_session_alloc(&session);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  err = QAPTIVA_COMPILER_QDMI_device_session_init(session);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  // Initialize job
+  QAPTIVA_COMPILER_QDMI_Device_Job job;
+  err = QAPTIVA_COMPILER_QDMI_device_session_create_device_job(session, &job);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  err = QAPTIVA_COMPILER_QDMI_device_job_set_parameter(
+      job, QDMI_DEVICE_JOB_PARAMETER_PROGRAM, circuit.size(), circuit.c_str());
+
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  err = QAPTIVA_COMPILER_QDMI_device_job_set_parameter(
+      job, QDMI_DEVICE_JOB_PARAMETER_CUSTOM1, nativeGateset.size(),
+      nativeGateset.c_str());
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+
+  err = QAPTIVA_COMPILER_QDMI_device_job_submit(job);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  err = QAPTIVA_COMPILER_QDMI_device_job_wait(job, 0UL);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+
+  std::array<char, 4096UL> buffer;
+  size_t output_size = 0UL;
+
+  err = QAPTIVA_COMPILER_QDMI_device_job_get_results(
+      job, QDMI_JOB_RESULT_CUSTOM1, buffer.size(), buffer.data(), &output_size);
+  if (err != QDMI_SUCCESS) {
+    return err;
+  }
+  codeToExecute = std::string(buffer.data(), output_size);
+
+  QAPTIVA_COMPILER_QDMI_device_job_free(job);
+  QAPTIVA_COMPILER_QDMI_device_session_free(session);
+  return QAPTIVA_COMPILER_QDMI_device_finalize();
+}
 
 HamiltonianJobRequest::HamiltonianJobRequest(std::string resourceName,
                                              std::string interactionStr,

@@ -27,7 +27,7 @@ target_include_directories(
   mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
                      $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(mqss_client PUBLIC curl nlohmann_json rabbitmq)
+target_link_libraries(mqss_client PUBLIC curl nlohmann_json rabbitmq ${Python3_LIBRARIES} qaptiva_compiler_device )
 
 include(GNUInstallDirs)
 

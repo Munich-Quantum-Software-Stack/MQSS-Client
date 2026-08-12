@@ -45,13 +45,14 @@ private:
   unsigned int mShots;
   bool mNoModify;
   bool mQueued;
+  bool mIsNisqCompiler;
 
 public:
   CircuitJobRequest() {};
 
   CircuitJobRequest(std::string circuit, std::string circuitFormat,
                     std::string resourceName, unsigned int shots, bool noModify,
-                    bool queued);
+                    bool queued, bool isNisqCompiler = true);
 
   void setCircuit(std::string circuit) { mCircuit = circuit; }
   std::string getCircuit() const { return mCircuit; }
@@ -69,6 +70,11 @@ public:
   bool isNoModify() const { return mNoModify; }
   void setQueued(bool queued) { mQueued = queued; }
   bool isQueued() const { return mQueued; }
+  void setNisqCompiler(bool nisqCompiler) { mIsNisqCompiler = nisqCompiler; }
+  bool isNisqCompiler() const { return mIsNisqCompiler; }
+
+  int nisqCompile(const std::string& circuit, const std::string& nativeGateset,
+                  std::string codeToExecute);
 
   nlohmann::json toJson() const;
 

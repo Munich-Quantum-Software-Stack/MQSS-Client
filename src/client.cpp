@@ -22,8 +22,11 @@
 #include "clients/hpc_client.h"
 #include "clients/rest_client.h"
 #include "mqss-c/client.h"
+#include "mqss/job.h"
+#include "mqss/resource.h"
 
 #include <chrono>
+#include <ios>
 #include <optional>
 #include <thread>
 
@@ -66,6 +69,35 @@ MQSSClient::getResourceInfo(const std::string& resource) const {
   return Resource(parsed);
 }
 std::optional<std::string> MQSSClient::submitJob(JobRequest& job) {
+  if (auto* circuitJob = dynamic_cast<CircuitJobRequest*>(&job)) {
+    if (circuitJob->isNisqCompiler()) {
+      auto resource = getResourceInfo(circuitJob->getResourceName());
+      auto nativeGateset = resource->getNativeGateset();
+      std::string compiledCircuit;
+      std::string targetGateSet;
+      for (size_t i = 0; i < nativeGateset.size(); ++i) {
+        auto gateName = nativeGateset[i].getName();
+        if (gateName == "rxx") {
+          gateName = "XX";
+        }else if (gateName == "r" || gateName == "measure") {
+          continue;
+        }
+        if (i > 0) {
+          targetGateSet += ",";
+        }
+
+        std::transform(gateName.begin(), gateName.end(), gateName.begin(),
+                       ::toupper);
+
+        targetGateSet += gateName;
+      }
+
+      int err = circuitJob->nisqCompile(circuitJob->getCircuit(), targetGateSet,
+                                        compiledCircuit);
+      circuitJob->setCircuit(compiledCircuit);
+    }
+  }
+
   std::string path = job.getPath();
   std::string result = mClient->post(path, job.toJson());
   if (result.empty() || !nlohmann::json::accept(result))
