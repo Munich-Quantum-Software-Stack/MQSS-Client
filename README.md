@@ -85,6 +85,22 @@ more information. Any contribution to the project is assumed to be under the sam
 We use C++ to write the core of **MQSS Client**. With the provided Python bindings and C-API, **MQSS
 Client** can be used with Python and C-based applications.
 
+### How do I cite MQSS Client?
+
+If you use MQSS Client in your research, please cite the following paper:
+
+```bibtex
+@misc{mqssclient,
+      title={MQSS Client: Interface for Decoupling Quantum Programming Interfaces}, 
+      author={Ercüment Kaya and Muhammad Nufail Farooqi and Minh Chung and Burak Mete and Martin Schulz and Jorge Echavarria},
+      year={2026},
+      eprint={2607.28563},
+      archivePrefix={arXiv},
+      primaryClass={cs.ET},
+      url={https://arxiv.org/abs/2607.28563}, 
+}
+```
+
 <!-- [DOXYGEN FAQ] -->
 
 ## 📬 Contact
