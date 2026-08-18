@@ -91,13 +91,13 @@ If you use MQSS Client in your research, please cite the following paper:
 
 ```bibtex
 @misc{mqssclient,
-      title={MQSS Client: Interface for Decoupling Quantum Programming Interfaces}, 
+      title={MQSS Client: Interface for Decoupling Quantum Programming Interfaces},
       author={Ercüment Kaya and Muhammad Nufail Farooqi and Minh Chung and Burak Mete and Martin Schulz and Jorge Echavarria},
       year={2026},
       eprint={2607.28563},
       archivePrefix={arXiv},
       primaryClass={cs.ET},
-      url={https://arxiv.org/abs/2607.28563}, 
+      url={https://arxiv.org/abs/2607.28563},
 }
 ```
 
