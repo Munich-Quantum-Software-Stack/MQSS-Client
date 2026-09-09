@@ -39,7 +39,7 @@ private:
 
 public:
   MQSSRabbitMQClient(std::string user = "guest", std::string password = "guest",
-                     std::string hostname = "host.docker.internal",
+                     std::string hostname = "localhost",
                      int port = 5672)
       : mUser(user), mPassword(password), mHostname(hostname), mPort(port) {};
 
