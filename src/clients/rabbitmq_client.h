@@ -39,8 +39,7 @@ private:
 
 public:
   MQSSRabbitMQClient(std::string user = "guest", std::string password = "guest",
-                     std::string hostname = "localhost",
-                     int port = 5672)
+                     std::string hostname = "localhost", int port = 5672)
       : mUser(user), mPassword(password), mHostname(hostname), mPort(port) {};
 
   ~MQSSRabbitMQClient() { disconnect(); }
