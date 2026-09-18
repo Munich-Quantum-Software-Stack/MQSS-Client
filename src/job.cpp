@@ -32,16 +32,14 @@
 using namespace mqss::client;
 
 nlohmann::json CircuitJobRequest::toJson(bool isHpc) const {
-  nlohmann::json circuit = mCircuit;
-
-  if (isHpc) {
-    circuit = nlohmann::json::array({mCircuit});
-  }
-
   return {
-      {"circuit", std::move(circuit)},  {"circuit_format", mCircuitFormat},
-      {"resource_name", mResourceName}, {"shots", mShots},
-      {"no_modify", mNoModify},         {"queued", mQueued},
+      {"circuit",
+       isHpc ? nlohmann::json::array({mCircuit}) : nlohmann::json(mCircuit)},
+      {"circuit_format", mCircuitFormat},
+      {"resource_name", mResourceName},
+      {"shots", mShots},
+      {"no_modify", mNoModify},
+      {"queued", mQueued},
   };
 }
 

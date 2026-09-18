@@ -90,7 +90,7 @@ protected:
 TEST_F(MQSSClientTest, SubmitJobSuccess) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
       .WillOnce(Return(kSubmitSuccess));
 
   auto client = createClient();
@@ -105,7 +105,7 @@ TEST_F(MQSSClientTest, SubmitJobSuccess) {
 TEST_F(MQSSClientTest, SubmitJobEmptyResponse) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
       .WillOnce(Return(""));
 
   auto client = createClient();
@@ -116,7 +116,7 @@ TEST_F(MQSSClientTest, SubmitJobEmptyResponse) {
 TEST_F(MQSSClientTest, SubmitJobInvalidJson) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
       .WillOnce(Return("not-json"));
 
   auto client = createClient();
@@ -127,7 +127,7 @@ TEST_F(MQSSClientTest, SubmitJobInvalidJson) {
 TEST_F(MQSSClientTest, SubmitJobMissingUuid) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
       .WillOnce(Return(R"({"status":"ok"})"));
 
   auto client = createClient();
@@ -262,7 +262,7 @@ TEST_F(MQSSClientTest, GetJobResultInvalidJson) {
 TEST_F(MQSSClientTest, SubmitHamiltonianJobSuccess) {
   auto job = createHamiltonianJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(0)))
       .WillOnce(Return(kSubmitSuccess));
 
   auto client = createClient();
@@ -277,7 +277,7 @@ TEST_F(MQSSClientTest, SubmitHamiltonianJobSuccess) {
 TEST_F(MQSSClientTest, SubmitHamiltonianJobEmptyResponse) {
   auto job = createHamiltonianJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(0)))
       .WillOnce(Return(""));
 
   auto client = createClient();
@@ -288,7 +288,7 @@ TEST_F(MQSSClientTest, SubmitHamiltonianJobEmptyResponse) {
 TEST_F(MQSSClientTest, SubmitHamiltonianJobInvalidJson) {
   auto job = createHamiltonianJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(0)))
       .WillOnce(Return("not-json"));
 
   auto client = createClient();
@@ -299,7 +299,7 @@ TEST_F(MQSSClientTest, SubmitHamiltonianJobInvalidJson) {
 TEST_F(MQSSClientTest, SubmitHamiltonianJobMissingUuid) {
   auto job = createHamiltonianJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson()))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(0)))
       .WillOnce(Return(R"({"status":"ok"})"));
 
   auto client = createClient();
