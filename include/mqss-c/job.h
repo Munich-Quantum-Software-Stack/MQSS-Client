@@ -48,6 +48,10 @@ int MQSSClientGetJobResultSubmittedTimestamp(MQSSJobResultRef jobResult,
 int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
                                              uint64_t* scheduledTimestamp);
 
+void MQSSClientFreeJob(MQSSJobRef job);
+
+void MQSSClientFreeJobResult(MQSSJobResultRef result);
+
 #ifdef __cplusplus
 }
 #endif

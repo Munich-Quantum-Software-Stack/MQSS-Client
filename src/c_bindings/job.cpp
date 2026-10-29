@@ -162,3 +162,11 @@ int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
   }
   return 0;
 }
+
+void MQSSClientFreeJob(MQSSJobRef job) {
+  delete unwrap<JobRequest>(job);
+}
+
+void MQSSClientFreeJobResult(MQSSJobResultRef result) {
+  delete unwrap<JobResult>(result);
+}

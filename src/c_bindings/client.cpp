@@ -24,7 +24,7 @@
 
 using namespace mqss::client;
 
-MQSSClientRef MQSSClientCreateClient(char* token, char* urlOrQueue,
+MQSSClientRef MQSSClientCreateClient(const char* token, const char* urlOrQueue,
                                      bool isHpc) {
   if (!token || !urlOrQueue)
     return nullptr;
@@ -99,4 +99,8 @@ int MQSSClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName) {
     return -1;
 
   return unwrap<MQSSClient>(client)->getNumberPendingJobs(resourceName);
+}
+
+void MQSSClientFreeClient(MQSSClientRef client) {
+  delete unwrap<MQSSClient>(client);
 }
