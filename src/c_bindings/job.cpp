@@ -26,18 +26,20 @@
 
 using namespace mqss::client;
 
-MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
-                                      char* resourceName, unsigned int shots,
-                                      bool noModify, bool queued) {
+MQSSJobRef MQSSClientCreateCircuitJob(const char* circuit,
+                                      const char* circuitFormat,
+                                      const char* resourceName,
+                                      unsigned int shots, bool noModify,
+                                      bool queued) {
   if (!circuit || !circuitFormat || !resourceName)
     return nullptr;
   return wrap<MQSSJobRef>(new CircuitJobRequest(
       circuit, circuitFormat, resourceName, shots, noModify, queued));
 }
 
-MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
-                                          char* interactionStr,
-                                          char* coefficientsStr) {
+MQSSJobRef MQSSClientCreateHamiltonianJob(const char* resourceName,
+                                          const char* interactionStr,
+                                          const char* coefficientsStr) {
   if (!resourceName || !interactionStr || !coefficientsStr)
     return nullptr;
   return wrap<MQSSJobRef>(
@@ -163,9 +165,7 @@ int MQSSClientGetJobResultScheduledTimestamp(MQSSJobResultRef jobResult,
   return 0;
 }
 
-void MQSSClientFreeJob(MQSSJobRef job) {
-  delete unwrap<JobRequest>(job);
-}
+void MQSSClientFreeJob(MQSSJobRef job) { delete unwrap<JobRequest>(job); }
 
 void MQSSClientFreeJobResult(MQSSJobResultRef result) {
   delete unwrap<JobResult>(result);

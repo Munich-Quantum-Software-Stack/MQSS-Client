@@ -94,7 +94,8 @@ MQSSJobResultRef MQSSClientGetJobResult(MQSSClientRef client, MQSSJobRef job,
   return wrap<MQSSJobResultRef>(jobResult.release());
 }
 
-int MQSSClientGetNumberPendingJobs(MQSSClientRef client, char* resourceName) {
+int MQSSClientGetNumberPendingJobs(MQSSClientRef client,
+                                   const char* resourceName) {
   if (!client || !resourceName)
     return -1;
 

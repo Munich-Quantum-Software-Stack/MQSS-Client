@@ -28,13 +28,15 @@ typedef struct MQSSOpaqueJob* MQSSJobRef;
 
 typedef struct MQSSOpaqueJobResult* MQSSJobResultRef;
 
-MQSSJobRef MQSSClientCreateCircuitJob(char* circuit, char* circuitFormat,
-                                      char* resourceName, unsigned int shots,
-                                      bool noModify, bool queued);
+MQSSJobRef MQSSClientCreateCircuitJob(const char* circuit,
+                                      const char* circuitFormat,
+                                      const char* resourceName,
+                                      unsigned int shots, bool noModify,
+                                      bool queued);
 
-MQSSJobRef MQSSClientCreateHamiltonianJob(char* resourceName,
-                                          char* interactionStr,
-                                          char* coefficientsStr);
+MQSSJobRef MQSSClientCreateHamiltonianJob(const char* resourceName,
+                                          const char* interactionStr,
+                                          const char* coefficientsStr);
 
 int MQSSClientGetJobResultCounts(MQSSJobResultRef jobResult, char*** bitstreams,
                                  int** counts, int* size);
