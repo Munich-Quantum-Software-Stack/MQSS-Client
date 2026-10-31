@@ -126,9 +126,9 @@ std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest& job,
 
   while (timeout > 0) {
     std::string status = getJobStatus(job);
-    if (status == "COMPLETED" || status == "CANCELLED")
+    if (status == "COMPLETED")
       break;
-    if (status == "FAILED" || status.empty())
+    if (status == "FAILED" || status == "CANCELLED" || status.empty())
       return nullptr;
     std::this_thread::sleep_for(std::chrono::seconds(poll_seconds));
     timeout -= poll_seconds;
