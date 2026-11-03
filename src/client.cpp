@@ -23,6 +23,7 @@
 #include "clients/rest_client.h"
 #include "mqss-c/client.h"
 
+#include <algorithm>
 #include <chrono>
 #include <optional>
 #include <thread>
@@ -122,18 +123,18 @@ std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest& job,
 
 std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest& job,
                                                         size_t timeout) {
-  size_t poll_seconds = 2;
-
   while (timeout > 0) {
     std::string status = getJobStatus(job);
     if (status == "COMPLETED")
-      break;
+      return getJobResult(job);
     if (status == "FAILED" || status == "CANCELLED" || status.empty())
       return nullptr;
-    std::this_thread::sleep_for(std::chrono::seconds(poll_seconds));
-    timeout -= poll_seconds;
+
+    const size_t sleepSeconds = std::min(timeout, size_t{2});
+    std::this_thread::sleep_for(std::chrono::seconds(sleepSeconds));
+    timeout -= sleepSeconds;
   }
-  return timeout <= 0 ? nullptr : getJobResult(job);
+  return nullptr;
 }
 
 int MQSSClient::getNumberPendingJobs(const std::string& resource) const {
