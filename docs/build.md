@@ -42,9 +42,13 @@ To build the **MQSS Client**, the following components are required.
 1. CMake, From Version 3.19 to 3.30.
 2. Compiler that supports C++-17 (Every version after Clang 5 and GCC 8).
 3. Doxygen 1.15 to build documentation.
-4. CURL to communicate with the REST API.
+4. CURL 7.62 or newer to communicate with the REST API and validate URLs.
 5. RabbitMQ-C to communicate with the RabbitMQ Queues.
-6. Niels Lohmann's JSON to parse the JSON data.
+6. [Niels Lohmann's JSON](https://github.com/nlohmann/json) to parse the JSON data.
+   `NLOHMANN_JSON_VERSION` sets the minimum version and fallback release (default:
+   `3.12.0`). If a suitable installed version is unavailable, CMake fetches the
+   corresponding Git tag from the repository. Override it at configuration time
+   with `-DNLOHMANN_JSON_VERSION=<version>`.
 7. Pybind11 to create Python bindings.
 
 > [!NOTE] We strongly recommend using Dev Containers with Visual Studio Code. We provided the

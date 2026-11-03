@@ -18,6 +18,21 @@
 include(FetchContent)
 set(FETCH_PACKAGES "")
 
+set(NLOHMANN_JSON_VERSION
+    3.12.0
+    CACHE STRING "Minimum nlohmann_json version and fallback release")
+find_package(nlohmann_json ${NLOHMANN_JSON_VERSION} CONFIG QUIET)
+if(NOT nlohmann_json_FOUND)
+  # The public dependency must be exported alongside the installed MQSS targets.
+  set(JSON_Install ON)
+  FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json
+    GIT_TAG v${NLOHMANN_JSON_VERSION}
+    GIT_SHALLOW TRUE)
+  list(APPEND FETCH_PACKAGES nlohmann_json)
+endif()
+
 if(BUILD_DOCUMENTATION)
   set(CMAKE_POLICY_DEFAULT_CMP0116
       NEW
