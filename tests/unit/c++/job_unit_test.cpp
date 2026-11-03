@@ -20,6 +20,7 @@
 #include "mock_server.h"
 #include "mqss/client.h"
 
+#include <chrono>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
@@ -90,7 +91,7 @@ protected:
 TEST_F(MQSSClientTest, SubmitJobSuccess) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(false)))
       .WillOnce(Return(kSubmitSuccess));
 
   auto client = createClient();
@@ -102,10 +103,18 @@ TEST_F(MQSSClientTest, SubmitJobSuccess) {
   EXPECT_EQ(job.getUuid(), "12345");
 }
 
+TEST_F(MQSSClientTest, SubmitJobWithExplicitHpcTransport) {
+  auto job = createCircuitJob();
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(true)))
+      .WillOnce(Return(kSubmitSuccess));
+  MQSSClient client(std::move(mock_), true);
+  EXPECT_EQ(client.submitJob(job), std::optional<std::string>("12345"));
+}
+
 TEST_F(MQSSClientTest, SubmitJobEmptyResponse) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(false)))
       .WillOnce(Return(""));
 
   auto client = createClient();
@@ -116,7 +125,7 @@ TEST_F(MQSSClientTest, SubmitJobEmptyResponse) {
 TEST_F(MQSSClientTest, SubmitJobInvalidJson) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(false)))
       .WillOnce(Return("not-json"));
 
   auto client = createClient();
@@ -127,7 +136,7 @@ TEST_F(MQSSClientTest, SubmitJobInvalidJson) {
 TEST_F(MQSSClientTest, SubmitJobMissingUuid) {
   auto job = createCircuitJob();
 
-  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(1)))
+  EXPECT_CALL(*mock_ptr_, post(job.getPath(), job.toJson(false)))
       .WillOnce(Return(R"({"status":"ok"})"));
 
   auto client = createClient();
@@ -257,6 +266,49 @@ TEST_F(MQSSClientTest, GetJobResultInvalidJson) {
   auto client = createClient();
 
   EXPECT_EQ(client.getJobResult(job, false), nullptr);
+}
+
+TEST_F(MQSSClientTest, WaitForJobResultWithZeroTimeoutDoesNotPoll) {
+  auto job = createCircuitJob();
+  EXPECT_CALL(*mock_ptr_, get(_)).Times(0);
+  auto client = createClient();
+  EXPECT_EQ(client.getJobResult(job, true, 0), nullptr);
+}
+
+class MQSSClientPollingTest : public MQSSClientTest,
+                              public ::testing::WithParamInterface<size_t> {};
+
+TEST_P(MQSSClientPollingTest, WaitForJobResultStopsAtTimeout) {
+  const auto timeout = GetParam();
+  auto job = createCircuitJob();
+  job.setUuid("12345");
+  EXPECT_CALL(*mock_ptr_, get(job.getPath() + "/12345/status"))
+      .Times((timeout + 1) / 2)
+      .WillRepeatedly(Return(kStatusRunning));
+  EXPECT_CALL(*mock_ptr_, get(job.getPath() + "/12345/result")).Times(0);
+  auto client = createClient();
+  const auto start = std::chrono::steady_clock::now();
+  EXPECT_EQ(client.getJobResult(job, true, timeout), nullptr);
+  const auto elapsed = std::chrono::steady_clock::now() - start;
+  EXPECT_GE(elapsed, std::chrono::seconds(timeout));
+  EXPECT_LT(elapsed,
+            std::chrono::seconds(timeout) + std::chrono::milliseconds(750));
+}
+
+INSTANTIATE_TEST_SUITE_P(Timeouts, MQSSClientPollingTest,
+                         ::testing::Values(1u, 2u, 3u));
+
+TEST_F(MQSSClientTest, WaitForJobResultStopsOnTerminalOrMissingStatus) {
+  for (const std::string status :
+       {kStatusFailed, R"({"status":"CANCELLED"})", ""}) {
+    SCOPED_TRACE(status);
+    auto mock = std::make_unique<MockMQSSBaseClient>();
+    auto job = createCircuitJob();
+    EXPECT_CALL(*mock, get(job.getPath() + "//status"))
+        .WillOnce(Return(status));
+    MQSSClient client(std::move(mock));
+    EXPECT_EQ(client.getJobResult(job, true, 1), nullptr);
+  }
 }
 
 TEST_F(MQSSClientTest, SubmitHamiltonianJobSuccess) {

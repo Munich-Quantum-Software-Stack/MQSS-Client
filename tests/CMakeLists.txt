@@ -17,11 +17,12 @@
 
 enable_testing()
 include(GoogleTest)
+find_package(GTest REQUIRED)
 
-function(add_test test_name)
+function(add_mqss_test test_name)
   add_executable(${test_name} ${test_name}.cpp)
 
-  target_link_libraries(${test_name} PRIVATE gmock gtest gtest_main mqss_client)
+  target_link_libraries(${test_name} PRIVATE GTest::gmock GTest::gtest_main mqss_client)
 
   if(ENABLE_COVERAGE)
     target_link_libraries(${test_name} PRIVATE coverage_flags)

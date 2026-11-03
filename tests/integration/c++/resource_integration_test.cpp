@@ -20,13 +20,24 @@
 #include "mqss/client.h"
 
 #include "gtest/gtest.h"
+#include <cstdlib>
 #include <gtest/gtest.h>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-#define MQSS_HPC_QUEUENAME std::getenv("MQSS_HPC_QUEUENAME")
-#define MQSS_API_TOKEN std::getenv("MQSS_API_TOKEN")
+namespace {
+
+std::string environmentOrEmpty(const char* name) {
+  const char* value = std::getenv(name);
+  return value ? value : "";
+}
+
+} // namespace
+
+#define MQSS_HPC_QUEUENAME environmentOrEmpty("MQSS_HPC_QUEUENAME")
+#define MQSS_API_TOKEN environmentOrEmpty("MQSS_API_TOKEN")
 #define MQSS_API_URL "https://portal.quantum.lrz.de:4000/v1/"
 
 struct ClientCtorParam {
@@ -35,15 +46,23 @@ struct ClientCtorParam {
   bool isHPC = false;
 };
 
+void PrintTo(const ClientCtorParam& param, std::ostream* output) {
+  *output << (param.isHPC ? "HPC" : "REST");
+}
+
 class MQSSClientResourceTest
     : public ::testing::TestWithParam<ClientCtorParam> {
 protected:
   void SetUp() override {
     const auto& p = GetParam();
-    client = mqss::client::MQSSClient{p.token, p.url_or_queue, p.isHPC};
+    if ((p.isHPC && p.url_or_queue.empty()) || (!p.isHPC && p.token.empty()))
+      GTEST_SKIP()
+          << "Set MQSS_HPC_QUEUENAME or MQSS_API_TOKEN to run this mode";
+    client = std::make_unique<mqss::client::MQSSClient>(p.token, p.url_or_queue,
+                                                        p.isHPC);
   }
 
-  mqss::client::MQSSClient client;
+  std::unique_ptr<mqss::client::MQSSClient> client;
 };
 
 INSTANTIATE_TEST_SUITE_P(MQSS_Test_Instantiation, MQSSClientResourceTest,
@@ -54,7 +73,7 @@ INSTANTIATE_TEST_SUITE_P(MQSS_Test_Instantiation, MQSSClientResourceTest,
                                              false}));
 
 TEST_P(MQSSClientResourceTest, ClientGetAllResources) {
-  std::vector<mqss::client::Resource> resources = client.getAllResources();
+  std::vector<mqss::client::Resource> resources = client->getAllResources();
   ASSERT_GE(resources.size(), 0);
 }
 
@@ -63,7 +82,7 @@ TEST_P(MQSSClientResourceTest, ClientGetAResource) {
                                             "QExa20"};
   for (auto resourceName : resourceNames) {
     std::optional<mqss::client::Resource> resource =
-        client.getResourceInfo(resourceName);
+        client->getResourceInfo(resourceName);
     ASSERT_TRUE(resource.has_value());
   }
 }
@@ -73,7 +92,7 @@ TEST_P(MQSSClientResourceTest, ClientGetAResourceFalse) {
                                             "QExa120"};
   for (auto resourceName : resourceNames) {
     std::optional<mqss::client::Resource> resource =
-        client.getResourceInfo(resourceName);
+        client->getResourceInfo(resourceName);
     ASSERT_FALSE(resource.has_value());
   }
 }
@@ -81,7 +100,7 @@ TEST_P(MQSSClientResourceTest, ClientGetAResourceFalse) {
 TEST_P(MQSSClientResourceTest, ClientCheckResourceName) {
   std::string goldenResourceName = "QLM";
   std::optional<mqss::client::Resource> resource =
-      client.getResourceInfo(goldenResourceName);
+      client->getResourceInfo(goldenResourceName);
   ASSERT_TRUE(resource.has_value());
   ASSERT_EQ((*resource).getName(), goldenResourceName);
 }
@@ -89,7 +108,7 @@ TEST_P(MQSSClientResourceTest, ClientCheckResourceName) {
 TEST_P(MQSSClientResourceTest, ClientCheckQubitCount) {
   std::string resourceName = "Q5";
   std::optional<mqss::client::Resource> resource =
-      client.getResourceInfo(resourceName);
+      client->getResourceInfo(resourceName);
   ASSERT_TRUE(resource.has_value());
   ASSERT_GE((*resource).getQubitCount(), 0);
 }
@@ -98,7 +117,7 @@ TEST_P(MQSSClientResourceTest, ClientCheckIfOnline) {
   /* If the resource is under maintenance, this test might fail.*/
   std::string resourceName = "AQT20";
   std::optional<mqss::client::Resource> resource =
-      client.getResourceInfo(resourceName);
+      client->getResourceInfo(resourceName);
   ASSERT_TRUE(resource.has_value());
   ASSERT_EQ((*resource).isOnline(), true);
 }
@@ -107,7 +126,7 @@ TEST_P(MQSSClientResourceTest, ClientCheckCouplingMap) {
 
   std::string resourceName = "AQT20";
   std::optional<mqss::client::Resource> resource =
-      client.getResourceInfo(resourceName);
+      client->getResourceInfo(resourceName);
   ASSERT_TRUE(resource.has_value());
   ASSERT_GE((*resource).getCouplingMap().size(), 0);
 }
@@ -115,7 +134,7 @@ TEST_P(MQSSClientResourceTest, ClientCheckCouplingMap) {
 TEST_P(MQSSClientResourceTest, ClientCheckNativeGateset) {
   std::string resourceName = "Q20";
   std::optional<mqss::client::Resource> resource =
-      client.getResourceInfo(resourceName);
+      client->getResourceInfo(resourceName);
   ASSERT_TRUE(resource.has_value());
   ASSERT_GE((*resource).getNativeGateset().size(), 0);
 }
