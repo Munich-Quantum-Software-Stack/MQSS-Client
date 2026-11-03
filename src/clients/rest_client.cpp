@@ -19,108 +19,146 @@
 
 #include "rest_client.h"
 
-typedef struct MQSSRestResponse_d {
-  char* pResponse;
-  size_t mSize;
-} MQSSRestResponse;
+#include <algorithm>
+#include <cctype>
+#include <stdexcept>
 
-static size_t writeCallback(char* data, size_t size, size_t nmemb,
-                            void* clientp) {
-  size_t realsize = size * nmemb;
-  MQSSRestResponse* pResponse = (MQSSRestResponse*)clientp;
-  char* pTempResponse =
-      (char*)realloc(pResponse->pResponse, pResponse->mSize + realsize + 1);
-  if (!pTempResponse)
-    return 0;
+std::string MQSSRestClient::normalizeUrl(const std::string& url) {
+  const auto invalid = [] {
+    return std::invalid_argument(
+        "REST URL must be an absolute HTTP(S) URL without credentials, "
+        "a query, or a fragment");
+  };
+  const auto separator = url.find("://");
+  if (url.empty() ||
+      std::any_of(url.begin(), url.end(),
+                  [](unsigned char c) { return c <= 0x20 || c == 0x7f; }) ||
+      separator == std::string::npos || separator + 3 == url.size() ||
+      url[separator + 3] == '/' ||
+      url.find_first_of("?#") != std::string::npos) {
+    throw invalid();
+  }
 
-  pResponse->pResponse = pTempResponse;
-  void* dest =
-      memcpy(&(pResponse->pResponse[pResponse->mSize]), data, realsize);
-  if (dest == NULL)
-    fprintf(stderr, "Memory error");
-  pResponse->mSize += realsize;
-  pResponse->pResponse[pResponse->mSize] = 0;
+  std::unique_ptr<CURLU, decltype(&curl_url_cleanup)> parsed(curl_url(),
+                                                             curl_url_cleanup);
+  if (!parsed)
+    throw std::runtime_error("Failed to initialize URL parser");
+  if (curl_url_set(parsed.get(), CURLUPART_URL, url.c_str(),
+                   CURLU_DISALLOW_USER) != CURLUE_OK)
+    throw invalid();
 
-  return realsize;
+  char* scheme = nullptr;
+  const auto result = curl_url_get(parsed.get(), CURLUPART_SCHEME, &scheme, 0);
+  std::unique_ptr<char, decltype(&curl_free)> schemeGuard(scheme, curl_free);
+  if (result != CURLUE_OK ||
+      (std::string(scheme) != "http" && std::string(scheme) != "https"))
+    throw invalid();
+
+  const auto pathStart = url.find('/', separator + 3);
+  auto origin = url.substr(0, pathStart);
+  std::transform(origin.begin(), origin.end(), origin.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  const auto path = pathStart == std::string::npos ? "" : url.substr(pathStart);
+  if (std::string(scheme) == "https" &&
+      (path.empty() || path == "/" || path == "/v1" || path == "/v1/")) {
+    auto host = origin.substr(separator + 3);
+    const std::string port = ":4000";
+    if (host.size() > port.size() &&
+        host.compare(host.size() - port.size(), port.size(), port) == 0)
+      host.erase(host.size() - port.size());
+
+    for (const std::string domain : {".quantum.lrz.de", ".quantumpathway.eu"}) {
+      if (host.size() > domain.size() &&
+          host.compare(host.size() - domain.size(), domain.size(), domain) == 0)
+        return "https://" + host + port + "/v1/";
+    }
+  }
+
+  return url.back() == '/' ? url : url + '/';
 }
 
+namespace {
+
+size_t writeResponse(char* data, size_t size, size_t nmemb, void* output) {
+  const auto bytes = size * nmemb;
+  try {
+    static_cast<std::string*>(output)->append(data, bytes);
+  } catch (...) {
+    // Exceptions must not cross libcurl's C callback boundary.
+    return 0;
+  }
+  return bytes;
+}
+
+} // namespace
+
 MQSSRestClient::MQSSRestClient(std::string token, std::string url)
-    : mToken(token), mUrl(url), MQSSBaseClient() {
-  pHeaders = nullptr;
+    : mUrl(normalizeUrl(url)) {
+  const auto appendHeader = [this](const char* header) {
+    auto* headers = curl_slist_append(pHeaders.get(), header);
+    if (!headers)
+      throw std::bad_alloc();
+    pHeaders.release();
+    pHeaders.reset(headers);
+  };
   std::string auth_header = "Authorization: Bearer " + token;
-  pHeaders = curl_slist_append(pHeaders, auth_header.c_str());
-  pHeaders = curl_slist_append(pHeaders, "Content-Type: application/json");
+  appendHeader(auth_header.c_str());
+  appendHeader("Content-Type: application/json");
+  request("GET", "resources");
+}
+
+std::string MQSSRestClient::request(const char* method, const std::string& path,
+                                    const nlohmann::json* data) const {
+  std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(),
+                                                           curl_easy_cleanup);
+  if (!curl)
+    throw std::runtime_error("Failed to initialize REST connection");
+
+  const std::string url = mUrl + path;
+  const std::string payload = data ? data->dump() : std::string{};
+  std::string response;
+  curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl.get(), CURLOPT_HTTPHEADER, pHeaders.get());
+  curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, writeResponse);
+  curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(curl.get(), CURLOPT_CONNECTTIMEOUT_MS, 3000L);
+  curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT_MS, 5000L);
+  curl_easy_setopt(curl.get(), CURLOPT_NOSIGNAL, 1L);
+  curl_easy_setopt(curl.get(), CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
+  curl_easy_setopt(curl.get(), CURLOPT_CUSTOMREQUEST, method);
+  if (data) {
+    curl_easy_setopt(curl.get(), CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl.get(), CURLOPT_POSTFIELDSIZE_LARGE,
+                     static_cast<curl_off_t>(payload.size()));
+  }
+
+  const std::string errorPrefix = std::string("REST ") + method + " failed: ";
+  const CURLcode result = curl_easy_perform(curl.get());
+  if (result != CURLE_OK)
+    throw std::runtime_error(errorPrefix + curl_easy_strerror(result));
+
+  long status = 0;
+  curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &status);
+  if (status < 200 || status >= 300)
+    throw std::runtime_error(errorPrefix + "HTTP " + std::to_string(status));
+  return response;
 }
 
 std::string MQSSRestClient::get(const std::string& path) {
-  CURL* curl = curl_easy_init();
-  if (!curl)
-    return "1";
-
-  MQSSRestResponse response = {0};
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
-  curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
-  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
-  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
-
-  CURLcode res = curl_easy_perform(curl);
-  if (res != CURLE_OK)
-    return "2";
-
-  std::string result(response.pResponse, response.mSize);
-  if (response.pResponse)
-    free(response.pResponse);
-
-  return result;
+  try {
+    return request("GET", path);
+  } catch (const std::runtime_error&) {
+    return "";
+  }
 }
 
 std::string MQSSRestClient::post(const std::string& path,
                                  const nlohmann::json& data) {
-
-  CURL* curl = curl_easy_init();
-  if (!curl)
-    return "";
-
-  MQSSRestResponse response = {0};
-
-  std::string payload = data.dump();
-
-  curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
-  curl_easy_setopt(curl, CURLOPT_POST, 1L);
-  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
-
-  CURLcode res = curl_easy_perform(curl);
-  curl_easy_cleanup(curl);
-  if (res != CURLE_OK || response.pResponse == NULL) {
+  try {
+    return request("POST", path, &data);
+  } catch (const std::runtime_error&) {
     return "";
   }
-
-  std::string result(response.pResponse, response.mSize);
-  return result;
 }
 
-void MQSSRestClient::del(const std::string& path) {
-
-  CURL* curl = curl_easy_init();
-  if (!curl)
-    return;
-  long response_code;
-  MQSSRestResponse response = {0};
-
-  curl_easy_setopt(curl, CURLOPT_URL, (mUrl + path).c_str());
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&response);
-  curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-  curl_easy_setopt(curl, CURLOPT_CAINFO, std::getenv("CURL_CA_BUNDLE"));
-
-  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHeaders);
-
-  CURLcode res = curl_easy_perform(curl);
-  if (res != CURLE_OK)
-    return;
-}
+void MQSSRestClient::del(const std::string& path) { request("DELETE", path); }

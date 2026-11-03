@@ -29,6 +29,7 @@ extern "C" {
 
 typedef struct MQSSOpaqueClient* MQSSClientRef;
 
+// Returns NULL if arguments are invalid or the connection check fails.
 MQSSClientRef MQSSClientCreateClient(const char* token, const char* urlOrQueue,
                                      bool isHpc);
 
@@ -39,6 +40,7 @@ MQSSResourceRef MQSSClientGetResourceInfo(MQSSClientRef client,
 
 int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job);
 
+// Transport failures are contained; this void API cannot report their status.
 void MQSSClientCancelJob(MQSSClientRef client, MQSSJobRef job);
 
 MQSSJobResultRef MQSSClientGetJobResult(MQSSClientRef client, MQSSJobRef job,

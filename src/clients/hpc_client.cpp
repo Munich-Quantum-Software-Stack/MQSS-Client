@@ -85,7 +85,14 @@ std::string MQSSHPCClient::post(const std::string& path,
 }
 
 void MQSSHPCClient::del(const std::string& path) {
-  std::string request, response;
-  mRabbitmqClient.send(mOffloadListenerQueueName, request);
-  response = mRabbitmqClient.receive(mResponseQueueName);
+  const nlohmann::json request = {
+      {"authorization", ""},
+      {"method", "DELETE"},
+      {"request", path},
+      {"data", ""},
+      {"response_queue", mResponseQueueName},
+  };
+  if (mRabbitmqClient.send(mOffloadListenerQueueName, request.dump()) != 0)
+    throw std::runtime_error("Failed to send HPC cancellation request");
+  mRabbitmqClient.receive(mResponseQueueName);
 }
