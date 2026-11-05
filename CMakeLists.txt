@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.19...3.30)
 
 project(
   MQSS-Client
-  VERSION 0.1
+  VERSION 0.3.0
   DESCRIPTION "MQSS Client"
   LANGUAGES CXX C)
 
@@ -29,16 +29,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     ON
     CACHE BOOL "Export compile commands" FORCE)
 
-option(BUILD_TESTS "Build the tests" OFF)
-option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
-option(BUILD_INTEGRATION_TESTS "Build the unit tests" OFF)
-option(ENABLE_COVERAGE "Enabling coverage" OFF)
-option(BUILD_BINDINGS "Build Python Bindings" OFF)
-option(BUILD_SHARED_LIBS "Build Shared Library " ON)
+option(MQSSCLIENT_BUILD_TESTS "Build the tests" OFF)
+option(MQSSCLIENT_BUILD_UNIT_TESTS "Build the unit tests" OFF)
+option(MQSSCLIENT_BUILD_INTEGRATION_TESTS "Build the unit tests" OFF)
+option(MQSSCLIENT_ENABLE_COVERAGE "Enabling coverage" OFF)
+option(MQSSCLIENT_BUILD_PYTHON_BINDINGS "Build Python Bindings" OFF)
+option(MQSSCLIENT_BUILD_SHARED_LIBS "Build Shared Library " ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-if(ENABLE_COVERAGE)
+if(MQSSCLIENT_ENABLE_COVERAGE)
   add_library(coverage_flags INTERFACE)
 
   target_compile_options(coverage_flags INTERFACE --coverage -fprofile-arcs -ftest-coverage -O0)
@@ -56,15 +56,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/ExternalDependencies.cmake)
 
-if(BUILD_TESTS OR BUILD_UNIT_TESTS)
+if(MQSSCLIENT_BUILD_TESTS OR MQSSCLIENT_BUILD_UNIT_TESTS)
   add_compile_definitions(ENABLE_UNIT_TEST)
 endif()
 
 add_subdirectory(src)
 
-if(BUILD_TESTS
-   OR BUILD_UNIT_TESTS
-   OR BUILD_INTEGRATION_TESTS)
+if(MQSSCLIENT_BUILD_TESTS
+   OR MQSSCLIENT_BUILD_UNIT_TESTS
+   OR MQSSCLIENT_BUILD_INTEGRATION_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
@@ -73,6 +73,6 @@ if(BUILD_DOCUMENTATION)
   add_subdirectory(docs)
 endif()
 
-if(BUILD_BINDINGS)
+if(MQSSCLIENT_BUILD_PYTHON_BINDINGS)
   add_subdirectory(bindings)
 endif()

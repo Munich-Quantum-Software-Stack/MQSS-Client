@@ -21,7 +21,7 @@ find_package(rabbitmq-c REQUIRED)
 
 file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
-if(BUILD_SHARED_LIBS)
+if(MQSSCLIENT_BUILD_SHARED_LIBS)
   add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
 else()
   add_library(mqss_client STATIC ${MQSS_CLIENT_SOURCES})

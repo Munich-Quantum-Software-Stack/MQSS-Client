@@ -39,7 +39,7 @@ jobs:
 
       - name: Configure project
         run: |
-          cmake -S . -B build -DBUILD_UNIT_TESTS=ON
+          cmake -S . -B build -DMQSSCLIENT_BUILD_UNIT_TESTS=ON
 
       - name: Build
         run: |

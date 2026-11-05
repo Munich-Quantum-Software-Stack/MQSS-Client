@@ -24,17 +24,17 @@ function(add_mqss_test test_name)
 
   target_link_libraries(${test_name} PRIVATE GTest::gmock GTest::gtest_main mqss_client)
 
-  if(ENABLE_COVERAGE)
+  if(MQSSCLIENT_ENABLE_COVERAGE)
     target_link_libraries(${test_name} PRIVATE coverage_flags)
   endif()
 
   gtest_discover_tests(${test_name})
 endfunction()
 
-if(BUILD_TESTS OR BUILD_UNIT_TESTS)
+if(MQSSCLIENT_BUILD_TESTS OR MQSSCLIENT_BUILD_UNIT_TESTS)
   add_subdirectory(unit/c++)
 endif()
 
-if(BUILD_TESTS OR BUILD_INTEGRATION_TESTS)
+if(MQSSCLIENT_BUILD_TESTS OR MQSSCLIENT_BUILD_INTEGRATION_TESTS)
   add_subdirectory(integration/c++)
 endif()
