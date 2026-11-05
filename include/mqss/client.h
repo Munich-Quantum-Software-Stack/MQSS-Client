@@ -47,7 +47,7 @@ class MQSSClient {
 
 private:
   std::unique_ptr<JobResult> waitForJobResult(const JobRequest& job,
-                                              size_t timeout);
+                                              int timeout, int pollSeconds = 2);
   bool mIsHpc;
   std::unique_ptr<MQSSBaseClient> mClient;
 

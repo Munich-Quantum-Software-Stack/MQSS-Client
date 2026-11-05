@@ -122,7 +122,8 @@ std::unique_ptr<JobResult> MQSSClient::getJobResult(const JobRequest& job,
 }
 
 std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest& job,
-                                                        size_t timeout) {
+                                                        int timeout,
+                                                        int pollSeconds) {
   while (timeout > 0) {
     std::string status = getJobStatus(job);
     if (status == "COMPLETED")
@@ -130,7 +131,7 @@ std::unique_ptr<JobResult> MQSSClient::waitForJobResult(const JobRequest& job,
     if (status == "FAILED" || status == "CANCELLED" || status.empty())
       return nullptr;
 
-    const size_t sleepSeconds = std::min(timeout, size_t{2});
+    const int sleepSeconds = std::min(timeout, pollSeconds);
     std::this_thread::sleep_for(std::chrono::seconds(sleepSeconds));
     timeout -= sleepSeconds;
   }
