@@ -22,17 +22,21 @@
 #include "mqss/client.h"
 
 #include <curl/curl.h>
-#include <iostream>
 
 using namespace mqss::client;
 
 class MQSSRestClient : public MQSSBaseClient {
 private:
   std::string mUrl;
-  std::string mToken;
-  struct curl_slist* pHeaders;
+  std::unique_ptr<curl_slist, decltype(&curl_slist_free_all)> pHeaders{
+      nullptr, curl_slist_free_all};
+
+  std::string request(const char* method, const std::string& path,
+                      const nlohmann::json* data = nullptr) const;
 
 public:
+  static std::string normalizeUrl(const std::string& url);
+
   MQSSRestClient(std::string token, std::string url = MQP_DEFAULT_URL);
 
   std::string get(const std::string& path) override;

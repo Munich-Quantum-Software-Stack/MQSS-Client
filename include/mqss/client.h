@@ -47,17 +47,22 @@ class MQSSClient {
 
 private:
   std::unique_ptr<JobResult> waitForJobResult(const JobRequest& job,
-                                              size_t poll_seconds);
+                                              int timeout, int pollSeconds = 2);
   bool mIsHpc;
   std::unique_ptr<MQSSBaseClient> mClient;
 
 public:
+  // REST mode normalizes known portal URLs, validates the base URL, and checks
+  // GET <base>/resources.
+  // Throws std::invalid_argument for invalid URLs or std::runtime_error if
+  // the server cannot return HTTP 2xx within five seconds.
   MQSSClient(const std::string& token = "",
              const std::string& url_or_queue = MQP_DEFAULT_URL,
              bool is_hpc = false);
 
-  explicit MQSSClient(std::unique_ptr<MQSSBaseClient> client)
-      : mClient(std::move(client)) {}
+  explicit MQSSClient(std::unique_ptr<MQSSBaseClient> client,
+                      bool is_hpc = false)
+      : mIsHpc(is_hpc), mClient(std::move(client)) {}
 
   // Resources
   std::vector<Resource> getAllResources() const;

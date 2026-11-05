@@ -15,5 +15,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-add_test(job_unit_test)
-add_test(resource_unit_test)
+add_mqss_test(job_unit_test)
+add_mqss_test(resource_unit_test)

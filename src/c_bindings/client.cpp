@@ -29,7 +29,11 @@ MQSSClientRef MQSSClientCreateClient(const char* token, const char* urlOrQueue,
   if (!token || !urlOrQueue)
     return nullptr;
 
-  return wrap<MQSSClientRef>(new MQSSClient(token, urlOrQueue, isHpc));
+  try {
+    return wrap<MQSSClientRef>(new MQSSClient(token, urlOrQueue, isHpc));
+  } catch (const std::exception&) {
+    return nullptr;
+  }
 }
 MQSSResourceRef* MQSSClientGetAllResources(MQSSClientRef client, int* size) {
   if (!client || !size)
@@ -80,7 +84,11 @@ int MQSSClientSubmitJob(MQSSClientRef client, MQSSJobRef job) {
 void MQSSClientCancelJob(MQSSClientRef client, MQSSJobRef job) {
   if (!client || !job)
     return;
-  unwrap<MQSSClient>(client)->cancelJob(*unwrap<CircuitJobRequest>(job));
+  try {
+    unwrap<MQSSClient>(client)->cancelJob(*unwrap<CircuitJobRequest>(job));
+  } catch (const std::exception&) {
+    // This void C API cannot report transport failures to the caller.
+  }
 }
 
 MQSSJobResultRef MQSSClientGetJobResult(MQSSClientRef client, MQSSJobRef job,

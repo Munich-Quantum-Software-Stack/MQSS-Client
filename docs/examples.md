@@ -15,6 +15,39 @@ This page contains usage examples for the **MQSS Client**.
 Before using the **MQSS Client**, an instance needs to be created. The client can operate in two
 modes: HPC mode (using RabbitMQ) or remote API mode.
 
+In remote API mode, provide an absolute `http://` or `https://` API base URL,
+including its version path (for example, `https://host/v1/`). A trailing slash
+is added if missing. Credentials, queries, and fragments in the URL are rejected
+with `std::invalid_argument`.
+
+For subdomains of `quantum.lrz.de` and `quantumpathway.eu`, HTTPS URLs with an omitted
+port or port `4000`, and an omitted path, `/`, `/v1`, or `/v1/`, are normalized to
+`https://<host>:4000/v1/` before connecting. For example,
+`https://test.quantumpathway.eu/` becomes `https://test.quantumpathway.eu:4000/v1/`.
+The supplied hostname is preserved. Domain suffixes are matched on complete DNS
+labels, ignoring case. Custom hosts, explicit alternative
+ports, and other paths keep their configured endpoint, with a trailing slash added
+if needed.
+
+Construction sends an authenticated `GET <base URL>/resources` request. It throws
+`std::runtime_error` if the connection fails, the server returns a non-2xx status
+(including authentication errors and redirects), or the check exceeds five seconds.
+The connection timeout is three seconds. The C API returns `NULL` on construction
+failure.
+
+All REST requests use the same three-second connection timeout and five-second
+overall timeout, and accept only HTTP 2xx responses. Failed GET and POST requests
+return an empty response, which the client maps to its existing empty, optional,
+or error-count return values. Failed cancellation requests throw
+`std::runtime_error` in C++ (`RuntimeError` in Python). The void C cancellation
+function contains these errors but cannot return a failure status.
+
+When supplying a custom `MQSSBaseClient`, `MQSSClient` defaults to REST job
+serialization. Pass `true` as the second constructor argument for HPC serialization.
+Blocking job-result polling sleeps for up to two seconds between status checks,
+limited by the remaining timeout. The timeout counts time spent sleeping;
+network requests add to the total duration and retain their separate REST limits.
+
 ```cpp
 #include <mqss/client.h>
 

@@ -27,8 +27,17 @@
 #include <optional>
 #include <string>
 
-#define MQSS_HPC_QUEUENAME std::getenv("MQSS_HPC_QUEUENAME")
-#define MQSS_API_TOKEN std::getenv("MQSS_API_TOKEN")
+namespace {
+
+std::string environmentOrEmpty(const char* name) {
+  const char* value = std::getenv(name);
+  return value ? value : "";
+}
+
+} // namespace
+
+#define MQSS_HPC_QUEUENAME environmentOrEmpty("MQSS_HPC_QUEUENAME")
+#define MQSS_API_TOKEN environmentOrEmpty("MQSS_API_TOKEN")
 #define MQSS_API_URL "https://portal.quantum.lrz.de:4000/v1/"
 
 struct ClientCtorParam {
@@ -37,15 +46,23 @@ struct ClientCtorParam {
   bool isHPC = false;
 };
 
+void PrintTo(const ClientCtorParam& param, std::ostream* output) {
+  *output << (param.isHPC ? "HPC" : "REST");
+}
+
 class MQSSClientJobTest : public ::testing::TestWithParam<ClientCtorParam> {
 protected:
   void SetUp() override {
     const auto& p = GetParam();
 
-    client = mqss::client::MQSSClient{p.token, p.url_or_queue, p.isHPC};
+    if ((p.isHPC && p.url_or_queue.empty()) || (!p.isHPC && p.token.empty()))
+      GTEST_SKIP()
+          << "Set MQSS_HPC_QUEUENAME or MQSS_API_TOKEN to run this mode";
+    client = std::make_unique<mqss::client::MQSSClient>(p.token, p.url_or_queue,
+                                                        p.isHPC);
   }
 
-  mqss::client::MQSSClient client;
+  std::unique_ptr<mqss::client::MQSSClient> client;
 };
 
 INSTANTIATE_TEST_SUITE_P(MQSS_Test_Instantiation, MQSSClientJobTest,
@@ -66,8 +83,8 @@ measure q -> c;)";
 
 TEST_P(MQSSClientJobTest, ClientSubmitJob) {
   mqss::client::CircuitJobRequest job =
-      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid = client.submitJob(job);
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "EQE1", 100, 0, 0);
+  auto uuid = client->submitJob(job);
   ASSERT_TRUE(uuid.has_value());
 }
 
@@ -75,28 +92,28 @@ TEST_P(MQSSClientJobTest, ClientCancelJob) {
   if (GetParam().isHPC)
     GTEST_SKIP();
   mqss::client::CircuitJobRequest job =
-      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid = client.submitJob(job);
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "EQE1", 100, 0, 0);
+  auto uuid = client->submitJob(job);
   ASSERT_TRUE(uuid.has_value());
-  client.cancelJob(job);
-  ASSERT_STREQ(client.getJobStatus(job).c_str(), "CANCELLED");
+  client->cancelJob(job);
+  ASSERT_STREQ(client->getJobStatus(job).c_str(), "CANCELLED");
 }
 
 TEST_P(MQSSClientJobTest, ClientSubmitHamiltonianJob) {
   if (GetParam().isHPC)
     GTEST_SKIP();
   mqss::client::HamiltonianJobRequest job = mqss::client::HamiltonianJobRequest(
-      "QLM", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
-  auto uuid = client.submitJob(job);
+      "EQE1", "0 1; 1 2; 0 2; 0 3;", "0.5 0.1 0.8 1;");
+  auto uuid = client->submitJob(job);
   ASSERT_TRUE(uuid.has_value());
 }
 
 TEST_P(MQSSClientJobTest, ClientCheckJobStatus) {
   mqss::client::CircuitJobRequest job =
-      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid = client.submitJob(job);
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "EQE1", 100, 0, 0);
+  auto uuid = client->submitJob(job);
   ASSERT_TRUE(uuid.has_value());
-  std::string status = client.getJobStatus(job);
+  std::string status = client->getJobStatus(job);
   ASSERT_STRNE(status.c_str(), "");
 }
 
@@ -144,20 +161,20 @@ TEST_P(MQSSClientJobTest, ClientWaitForResult) {
   if (GetParam().isHPC)
     GTEST_SKIP();
   mqss::client::CircuitJobRequest job =
-      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid_or_null = client.submitJob(job);
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "EQE1", 100, 0, 0);
+  auto uuid_or_null = client->submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
-  auto result = client.getJobResult(job, true, 50);
+  auto result = client->getJobResult(job, true, 50);
   ASSERT_NE(result, nullptr);
   ASSERT_NE(result->getResults().size(), 0);
 }
 
 TEST_P(MQSSClientJobTest, ClientGetNumPendingJobs) {
   mqss::client::CircuitJobRequest job =
-      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "QLM", 100, 0, 0);
-  auto uuid_or_null = client.submitJob(job);
+      mqss::client::CircuitJobRequest(TEST_CIRCUIT, "qasm", "EQE1", 100, 0, 0);
+  auto uuid_or_null = client->submitJob(job);
   ASSERT_TRUE(uuid_or_null.has_value());
-  int n_job = client.getNumberPendingJobs("QLM");
+  int n_job = client->getNumberPendingJobs("EQE1");
   ASSERT_GE(n_job, 0);
 }
 

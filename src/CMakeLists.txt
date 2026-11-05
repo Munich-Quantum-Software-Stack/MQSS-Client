@@ -15,13 +15,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-find_package(CURL REQUIRED)
-find_package(nlohmann_json REQUIRED)
+# URL validation and normalization use the curl_url API
+find_package(CURL 7.62 REQUIRED)
 find_package(rabbitmq-c REQUIRED)
 
 file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
-if(BUILD_SHARED_LIBS)
+if(MQSSCLIENT_BUILD_SHARED_LIBS)
   add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
 else()
   add_library(mqss_client STATIC ${MQSS_CLIENT_SOURCES})
@@ -32,7 +32,7 @@ target_include_directories(
   mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
                      $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(mqss_client PUBLIC curl nlohmann_json rabbitmq)
+target_link_libraries(mqss_client PUBLIC CURL::libcurl nlohmann_json::nlohmann_json rabbitmq)
 
 include(GNUInstallDirs)
 
