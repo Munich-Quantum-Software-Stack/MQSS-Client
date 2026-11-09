@@ -18,6 +18,38 @@
 include(FetchContent)
 set(FETCH_PACKAGES "")
 
+find_package(Boost CONFIG QUIET OPTIONAL_COMPONENTS uuid)
+if(TARGET Boost::uuid)
+  set(MQSS_BOOST_UUID_TARGET Boost::uuid)
+elseif(Boost_FOUND)
+  # Older Boost packages expose header-only UUID through the headers target.
+  find_path(
+    MQSS_BOOST_UUID_INCLUDE_DIR boost/uuid/uuid_generators.hpp
+    HINTS ${Boost_INCLUDE_DIRS}
+    NO_DEFAULT_PATH)
+  if(MQSS_BOOST_UUID_INCLUDE_DIR)
+    set(MQSS_BOOST_UUID_TARGET Boost::headers)
+  endif()
+endif()
+
+if(NOT MQSS_BOOST_UUID_TARGET)
+  set(BOOST_VERSION
+      1.86.0
+      CACHE STRING "Boost fallback release")
+  set(BOOST_SHA256
+      2c5ec5edcdff47ff55e27ed9560b0a0b94b07bd07ed9928b476150e16b0efc57
+      CACHE STRING "SHA256 of the Boost fallback archive")
+  # UUID is header-only; configure just UUID and its required Boost dependencies.
+  set(BOOST_INCLUDE_LIBRARIES uuid)
+  set(BOOST_SKIP_INSTALL_RULES OFF)
+  FetchContent_Declare(
+    Boost
+    URL https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}-cmake.tar.xz
+    URL_HASH SHA256=${BOOST_SHA256})
+  list(APPEND FETCH_PACKAGES Boost)
+  set(MQSS_BOOST_UUID_TARGET Boost::uuid)
+endif()
+
 set(NLOHMANN_JSON_VERSION
     3.12.0
     CACHE STRING "Minimum nlohmann_json version and fallback release")
@@ -31,6 +63,19 @@ if(NOT nlohmann_json_FOUND)
     GIT_TAG v${NLOHMANN_JSON_VERSION}
     GIT_SHALLOW TRUE)
   list(APPEND FETCH_PACKAGES nlohmann_json)
+endif()
+
+find_package(rabbitmq-c CONFIG QUIET)
+if(NOT rabbitmq-c_FOUND)
+  set(RABBITMQ_C_VERSION
+      0.13.0
+      CACHE STRING "rabbitmq-c fallback release")
+  FetchContent_Declare(
+    rabbitmq-c
+    GIT_REPOSITORY https://github.com/alanxz/rabbitmq-c.git
+    GIT_TAG v${RABBITMQ_C_VERSION}
+    GIT_SHALLOW TRUE)
+  list(APPEND FETCH_PACKAGES rabbitmq-c)
 endif()
 
 if(BUILD_DOCUMENTATION)

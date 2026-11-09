@@ -17,7 +17,6 @@
 
 # URL validation and normalization use the curl_url API
 find_package(CURL 7.62 REQUIRED)
-find_package(rabbitmq-c REQUIRED)
 
 file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
@@ -32,7 +31,17 @@ target_include_directories(
   mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
                      $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(mqss_client PUBLIC CURL::libcurl nlohmann_json::nlohmann_json rabbitmq)
+if(TARGET rabbitmq::rabbitmq)
+  set(MQSS_RABBITMQ_TARGET rabbitmq::rabbitmq)
+else()
+  set(MQSS_RABBITMQ_TARGET rabbitmq::rabbitmq-static)
+  if(TARGET rabbitmq-static)
+    set_target_properties(rabbitmq-static PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif()
+endif()
+
+target_link_libraries(mqss_client PUBLIC CURL::libcurl nlohmann_json::nlohmann_json
+                                         ${MQSS_RABBITMQ_TARGET} ${MQSS_BOOST_UUID_TARGET})
 
 include(GNUInstallDirs)
 
