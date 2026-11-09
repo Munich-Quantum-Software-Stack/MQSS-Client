@@ -40,8 +40,8 @@ else()
   endif()
 endif()
 
-target_link_libraries(mqss_client PRIVATE CURL::libcurl nlohmann_json::nlohmann_json
-                                          ${MQSS_RABBITMQ_TARGET} ${MQSS_BOOST_UUID_TARGET})
+target_link_libraries(mqss_client PUBLIC CURL::libcurl nlohmann_json::nlohmann_json
+                                         ${MQSS_RABBITMQ_TARGET} ${MQSS_BOOST_UUID_TARGET})
 
 include(GNUInstallDirs)
 
