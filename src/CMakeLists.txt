@@ -22,6 +22,15 @@ file(GLOB_RECURSE MQSS_CLIENT_SOURCES **.cpp)
 
 if(MQSSCLIENT_BUILD_SHARED_LIBS)
   add_library(mqss_client SHARED ${MQSS_CLIENT_SOURCES})
+  if(APPLE)
+    set_target_properties(
+      mqss_client
+      PROPERTIES MACOSX_RPATH ON
+                 INSTALL_NAME_DIR "@rpath"
+                 INSTALL_RPATH "@loader_path")
+  elseif(UNIX)
+    set_target_properties(mqss_client PROPERTIES INSTALL_RPATH "$ORIGIN")
+  endif()
 else()
   add_library(mqss_client STATIC ${MQSS_CLIENT_SOURCES})
   set_target_properties(mqss_client PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -31,13 +40,13 @@ target_include_directories(
   mqss_client PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
                      $<INSTALL_INTERFACE:include>)
 
-if(TARGET rabbitmq::rabbitmq)
-  set(MQSS_RABBITMQ_TARGET rabbitmq::rabbitmq)
-else()
+if(TARGET rabbitmq::rabbitmq-static)
   set(MQSS_RABBITMQ_TARGET rabbitmq::rabbitmq-static)
-  if(TARGET rabbitmq-static)
-    set_target_properties(rabbitmq-static PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  endif()
+elseif(TARGET rabbitmq-static)
+  set(MQSS_RABBITMQ_TARGET rabbitmq-static)
+else()
+  message(FATAL_ERROR "Static RabbitMQ library not found. "
+                      "MQSS Python extension requires static RabbitMQ.")
 endif()
 
 target_link_libraries(mqss_client PUBLIC CURL::libcurl nlohmann_json::nlohmann_json
