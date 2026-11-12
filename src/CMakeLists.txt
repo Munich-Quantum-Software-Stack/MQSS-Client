@@ -44,6 +44,8 @@ if(TARGET rabbitmq::rabbitmq-static)
   set(MQSS_RABBITMQ_TARGET rabbitmq::rabbitmq-static)
 elseif(TARGET rabbitmq-static)
   set(MQSS_RABBITMQ_TARGET rabbitmq-static)
+elseif(TARGET rabbitmq)
+  set(MQSS_RABBITMQ_TARGET rabbitmq)
 else()
   message(FATAL_ERROR "Static RabbitMQ library not found. "
                       "MQSS Python extension requires static RabbitMQ.")
