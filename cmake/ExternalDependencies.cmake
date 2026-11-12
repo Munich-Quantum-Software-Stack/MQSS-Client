@@ -70,6 +70,11 @@ if(NOT rabbitmq-c_FOUND)
   set(RABBITMQ_C_VERSION
       0.13.0
       CACHE STRING "rabbitmq-c fallback release")
+
+  set(BUILD_SHARED_LIBS
+      OFF
+      CACHE BOOL "" FORCE)
+
   FetchContent_Declare(
     rabbitmq-c
     GIT_REPOSITORY https://github.com/alanxz/rabbitmq-c.git

@@ -15,9 +15,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-
 find_package(pybind11 REQUIRED)
 
 set(MQSS_PYTHON_MODULE_NAME PyMQSSClient)
@@ -31,7 +28,15 @@ target_include_directories(${MQSS_PYTHON_MODULE_NAME} PRIVATE ${PROJECT_SOURCE_D
 
 target_link_libraries(${MQSS_PYTHON_MODULE_NAME} PRIVATE mqss_client)
 
-set_target_properties(${MQSS_PYTHON_MODULE_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")
+if(APPLE)
+  set_target_properties(${MQSS_PYTHON_MODULE_NAME} PROPERTIES INSTALL_RPATH "@loader_path"
+                                                              BUILD_RPATH "@loader_path")
+elseif(UNIX)
+  set_target_properties(${MQSS_PYTHON_MODULE_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN" BUILD_RPATH
+                                                                                      "$ORIGIN")
+endif()
+
+set_target_properties(${MQSS_PYTHON_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(
   TARGETS ${MQSS_PYTHON_MODULE_NAME}
